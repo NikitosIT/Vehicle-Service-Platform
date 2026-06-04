@@ -13,13 +13,21 @@
       "dependsOn": ["db:generate"]
     },
     "lint:ci": {
-      "dependsOn": ["db:generate"]
+      "dependsOn": ["db:generate"],
+      "inputs": [
+        "src/**",
+        "test/**",
+        "eslint.config.mjs",
+        "tsconfig.json",
+        "tsconfig.build.json"
+      ]
     },
     "test": {
       "dependsOn": ["db:generate"]
     },
     "db:generate": {
-      "cache": false
+      "inputs": ["prisma/**", "prisma.config.ts"],
+      "outputs": ["generated/**"]
     }
   }
 }

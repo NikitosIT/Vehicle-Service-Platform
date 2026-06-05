@@ -1,5 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "futureFlags": {
+    "affectedUsingTaskInputs": true
+  },
   "tasks": {
     "build": {
       "dependsOn": ["db:generate"],
@@ -15,11 +18,11 @@
     "lint:ci": {
       "dependsOn": ["db:generate"],
       "inputs": [
-        "src/**",
-        "test/**",
-        "eslint.config.mjs",
-        "tsconfig.json",
-        "tsconfig.build.json"
+        "$TURBO_DEFAULT$",
+        "!dist/**",
+        "!generated/**",
+        "!coverage/**",
+        "!README.md"
       ]
     },
     "test": {

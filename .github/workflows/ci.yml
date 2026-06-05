@@ -13,6 +13,8 @@ jobs:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/cache@v4
         with:
@@ -29,7 +31,18 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run lint:ci
+      - name: Configure Turbo affected range
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "TURBO_SCM_BASE=origin/${{ github.base_ref }}" >> "$GITHUB_ENV"
+            echo "TURBO_SCM_HEAD=${{ github.sha }}" >> "$GITHUB_ENV"
+          else
+            echo "TURBO_SCM_BASE=${{ github.event.before }}" >> "$GITHUB_ENV"
+            echo "TURBO_SCM_HEAD=${{ github.sha }}" >> "$GITHUB_ENV"
+          fi
+
+      - run: npm run lint:ci -- --affected
 
   ci-success:
     name: CI

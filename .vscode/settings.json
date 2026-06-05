@@ -1,13 +1,42 @@
 {
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
+    "source.fixAll.eslint": "always"
+  },
+  "editor.rulers": [90],
   "eslint.format.enable": true,
-  "eslint.workingDirectories": [
-    { "pattern": "apps/*" }
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
   ],
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "eslint.workingDirectories": [{ "pattern": "apps/*" }],
+  "files.eol": "\n",
   "files.exclude": {
-    "**/.turbo": true
-  }
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/generated": true,
+    "**/node_modules": true
+  },
+  "files.watcherExclude": {
+    "**/.turbo/**": true,
+    "**/dist/**": true,
+    "**/generated/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/generated": true,
+    "**/node_modules": true
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma",
+    "editor.formatOnSave": true
+  },
+  "prisma.enableCodeLens": true,
+  "prisma.fileWatcher": true
 }

@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Env files
+
+- `.env.development` is used automatically by Next.js during local development.
+- `.env.production` is used by Next.js for standalone production runs outside Docker.
+- In Docker Compose production, runtime env is injected from the root `.env.prod`.
+
 ## Getting Started
 
 First, run the development server:

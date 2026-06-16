@@ -26,11 +26,10 @@ npm i
 
 This also runs `postinstall` and regenerates Prisma clients for both backend services.
 
-2. Create the frontend env file:
+2. Frontend env files are already in place:
 
-```bash
-cp apps/frontend/.env.example apps/frontend/.env.local
-```
+- `apps/frontend/.env.development` is used by Next.js in local development.
+- `apps/frontend/.env.production` contains Docker-network service URLs for containerized production runtime.
 
 `apps/user-service/.env.dev` and `apps/vehicle-service/.env.dev` are already committed for local development, so no extra backend env setup is needed.
 

@@ -1,7 +1,12 @@
 services:
   frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
     image: ${REGISTRY}/frontend:${IMAGE_TAG}
     restart: unless-stopped
+    env_file:
+      - .env.prod
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -14,6 +19,9 @@ services:
         condition: service_started
 
   user-service:
+    build:
+      context: .
+      dockerfile: apps/user-service/Dockerfile
     image: ${REGISTRY}/user-service:${IMAGE_TAG}
     restart: unless-stopped
     env_file:
@@ -33,6 +41,9 @@ services:
         condition: service_healthy
 
   vehicle-service:
+    build:
+      context: .
+      dockerfile: apps/vehicle-service/Dockerfile
     image: ${REGISTRY}/vehicle-service:${IMAGE_TAG}
     restart: unless-stopped
     env_file:

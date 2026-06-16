@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { HttpExceptionFilter } from '@vsp/backend-shared/filters';
+import { GlobalExceptionFilter } from '@vsp/backend-shared/filters';
 import { createPinoConfig, LoggingModule } from '@vsp/backend-shared/logger';
 
-import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter.js';
 import { env } from './config/env.js';
 import { PrismaModule } from './infrastructure/prisma/prisma.module.js';
 import { RedisModule } from './infrastructure/redis/redis.module.js';
@@ -53,11 +52,7 @@ import { UsersModule } from './modules/users/users.module.js';
     },
     {
       provide: APP_FILTER,
-      useClass: PrismaExceptionFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })

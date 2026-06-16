@@ -12,12 +12,12 @@ export function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const timer = setInterval(() => {
       setActiveIndex((current) => (current + 1) % HERO_SLIDES.length);
     }, AUTO_ADVANCE_MS);
 
     return () => {
-      window.clearInterval(timer);
+      clearInterval(timer);
     };
   }, []);
 

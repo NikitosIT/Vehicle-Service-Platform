@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { ApiError } from '@/lib/api/api-error';
+import { ApiError } from '@/api';
+import { routes } from '@/model/constants/routes';
 
 import { createVehicle } from '../api/vehicles.server';
 import { createVehicleSchema } from '../model/schemas/create-vehicle.schema';
@@ -32,8 +33,8 @@ export async function createVehicleAction(
       ...parsed.data,
       userId,
     });
-    revalidatePath('/vehicles');
-    revalidatePath(`/users/${userId}`);
+    revalidatePath(routes.appRoutes.vehicles);
+    revalidatePath(`${routes.appRoutes.users}/${userId}`);
 
     return {
       success: 'Vehicle added successfully.',

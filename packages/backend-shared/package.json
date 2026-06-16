@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./auth-session": {
+      "types": "./dist/auth-session/index.d.ts",
+      "default": "./dist/auth-session/index.js"
+    },
     "./logger": {
       "types": "./dist/logger/index.d.ts",
       "default": "./dist/logger/index.js"
@@ -17,6 +21,18 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint:ci": "eslint \"src/**/*.ts\"",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.19.0"
   }
 }

@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import { LoggerModule } from 'nestjs-pino';
 import type { Params } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino';
 
 @Global()
 @Module({})

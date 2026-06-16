@@ -1,10 +1,10 @@
 import type { Params } from 'nestjs-pino';
 
 export type CreatePinoConfigOptions = {
-  level: string,
-  nodeEnv: string,
-  redactPaths?: string[],
-  serviceName: string,
+  level: string;
+  nodeEnv: string;
+  redactPaths?: string[];
+  serviceName: string;
 };
 
 export function createPinoConfig({
@@ -14,20 +14,22 @@ export function createPinoConfig({
   serviceName,
 }: CreatePinoConfigOptions): Params {
   const isProduction = nodeEnv === 'production';
+  const isDev = !isProduction;
 
   return {
     pinoHttp: {
       level,
-      transport: isProduction
-        ? undefined
-        : {
+      transport: isDev
+        ? {
             target: 'pino-pretty',
             options: {
               colorize: true,
               singleLine: true,
+              errorLikeObjectKeys: [],
               translateTime: 'SYS:standard',
             },
-          },
+          }
+        : undefined,
       redact: {
         paths: redactPaths,
         remove: true,
@@ -35,6 +37,8 @@ export function createPinoConfig({
       customProps: () => ({
         service: serviceName,
       }),
+      customLogLevel: (_req, res) =>
+        res.statusCode >= 400 ? 'silent' : 'info',
     },
   };
 }

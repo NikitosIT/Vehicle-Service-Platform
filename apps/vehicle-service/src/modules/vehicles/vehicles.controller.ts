@@ -8,40 +8,53 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard, CurrentAccountId } from '@vsp/backend-shared/auth-session';
 
 import { CreateVehicleDto, UpdateVehicleDto } from './vehicles.dto.js';
 import { VehiclesService } from './vehicles.service.js';
 
+@UseGuards(AuthGuard)
 @Controller('vehicles')
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 
   @Get()
-  findAll(@Query('userId') userId?: string) {
-    return this.vehiclesService.findAll(userId);
+  findAll(
+    @CurrentAccountId() accountId: string,
+    @Query('userId') userId?: string,
+  ) {
+    return this.vehiclesService.findAll(accountId, userId);
   }
 
   @Get(':id')
-  findOneById(@Param('id', ParseIntPipe) id: number) {
-    return this.vehiclesService.findOneById(id);
+  findOneById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentAccountId() accountId: string,
+  ) {
+    return this.vehiclesService.findOneById(id, accountId);
   }
 
   @Post()
-  create(@Body() dto: CreateVehicleDto) {
-    return this.vehiclesService.create(dto);
+  create(@Body() dto: CreateVehicleDto, @CurrentAccountId() accountId: string) {
+    return this.vehiclesService.create(dto, accountId);
   }
 
   @Put(':id')
   updateById(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateVehicleDto,
+    @CurrentAccountId() accountId: string,
   ) {
-    return this.vehiclesService.updateById(id, dto);
+    return this.vehiclesService.updateById(id, dto, accountId);
   }
 
   @Delete(':id')
-  deleteById(@Param('id', ParseIntPipe) id: number) {
-    return this.vehiclesService.deleteById(id);
+  deleteById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentAccountId() accountId: string,
+  ) {
+    return this.vehiclesService.deleteById(id, accountId);
   }
 }

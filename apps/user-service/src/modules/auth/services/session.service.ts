@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import {
+  getSessionCookieName,
+  type RequestWithSession,
+  type SessionWithAccount,
+} from '@vsp/backend-shared/auth-session';
 import type { Response } from 'express';
 
 import { env } from '../../../config/env.js';
-import { SESSION_HOST_COOKIE_PREFIX } from '../../../infrastructure/session/session.constants.js';
-import type { RequestWithSession, SessionWithAccount } from '../auth.types.js';
 
 @Injectable()
 export class SessionService {
@@ -47,16 +50,14 @@ export class SessionService {
   }
 
   clearCookie(response: Response) {
-    const sessionCookieName =
-      env.NODE_ENV === 'production'
-        ? `${SESSION_HOST_COOKIE_PREFIX}${env.SESSION_COOKIE_NAME}`
-        : env.SESSION_COOKIE_NAME;
-
-    response.clearCookie(sessionCookieName, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: env.NODE_ENV === 'production',
-    });
+    response.clearCookie(
+      getSessionCookieName(env.NODE_ENV, env.SESSION_COOKIE_NAME),
+      {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: env.NODE_ENV === 'production',
+      },
+    );
   }
 
   private toError(error: unknown) {

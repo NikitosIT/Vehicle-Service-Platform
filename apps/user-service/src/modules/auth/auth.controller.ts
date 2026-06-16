@@ -8,9 +8,12 @@ import {
   Res,
   Session,
 } from '@nestjs/common';
+import type {
+  RequestWithSession,
+  SessionWithAccount,
+} from '@vsp/backend-shared/auth-session';
 import type { Response } from 'express';
 
-import type { RequestWithSession, SessionWithAccount } from './auth.types.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { AuthService } from './services/auth.service.js';

@@ -31,6 +31,7 @@ export class VehiclesConsumer {
           err: error,
           event: RMQ_PATTERNS.USER_CREATED,
           userId: data.id,
+          accountId: data.createdByAccountId,
         },
         'Failed to process user created event',
       );

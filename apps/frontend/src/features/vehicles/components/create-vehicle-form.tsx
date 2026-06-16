@@ -62,7 +62,7 @@ export function CreateVehicleForm({ userId }: CreateVehicleFormProps) {
           label="Year"
           placeholder="2024"
           type="number"
-          {...form.register('year', { valueAsNumber: true })}
+          {...form.register('year')}
         />
 
         {serverError ? (

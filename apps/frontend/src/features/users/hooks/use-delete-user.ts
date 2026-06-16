@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { routes } from '@/model/constants/routes';
+
 import { deleteUserAction } from '../actions/delete-user.action';
 
 export function useDeleteUser(userId: string) {
@@ -35,7 +37,7 @@ export function useDeleteUser(userId: string) {
       }
 
       setIsDialogOpen(false);
-      router.push('/users');
+      router.push(routes.appRoutes.users);
       router.refresh();
     });
   };

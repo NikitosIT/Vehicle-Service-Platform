@@ -21,6 +21,9 @@
     "**/generated/**": true,
     "**/node_modules/**": true
   },
+  "files.exclude": {
+    "**/.turbo": true
+  },
   "search.exclude": {
     "**/.turbo": true,
     "**/dist": true,

@@ -5,6 +5,7 @@ import { createPinoConfig, LoggingModule } from '@vsp/backend-shared/logger';
 
 import { env } from './config/env.js';
 import { PrismaModule } from './infrastructure/prisma/prisma.module.js';
+import { SessionModule } from './infrastructure/session/session.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { VehiclesModule } from './modules/vehicles/vehicles.module.js';
 
@@ -24,6 +25,7 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module.js';
     ),
     HealthModule,
     PrismaModule,
+    SessionModule,
     VehiclesModule,
   ],
   // providers: [

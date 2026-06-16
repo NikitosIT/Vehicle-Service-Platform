@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import { loadServiceEnv } from './load-env.js';
+
+loadServiceEnv();
 
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL,

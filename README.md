@@ -1,71 +1,94 @@
 # Vehicle Service Platform
 
-Monorepo for the Vehicle Service Platform (frontend, backend services, shared packages).
+Monorepo for the frontend, backend services, and shared packages.
 
-## Requirements
+## What you need
 
 - Node.js >= 22
-- npm 11.x (see `packageManager` in root `package.json`)
+- npm 11.x
+- Docker Desktop
 
-## Getting started
+## Root env files
+
+- `.env.dev` is already committed and is used for local Docker infrastructure.
+- You do not need to create a root `.env` file for local startup.
+- Production secrets live in `.env.prod`, which is not committed.
+
+`docker-compose.dev.yml` reads local infrastructure settings from `.env.dev`.
+
+## First local startup
+
+1. Install dependencies:
 
 ```bash
 npm i
-cp .env.example .env
-cp apps/user-service/.env.example apps/user-service/.env
-cp apps/vehicle-service/.env.example apps/vehicle-service/.env
-cp apps/frontend/.env.example apps/frontend/.env.local
+```
 
-docker compose -f docker.compose.yml up -d
+This also runs `postinstall` and regenerates Prisma clients for both backend services.
+
+2. Create the frontend env file:
+
+```bash
+cp apps/frontend/.env.example apps/frontend/.env.local
+```
+
+`apps/user-service/.env.dev` and `apps/vehicle-service/.env.dev` are already committed for local development, so no extra backend env setup is needed.
+
+3. Start local infrastructure:
+
+```bash
+npm run docker:dev:up
+```
+
+4. Apply database migrations:
+
+```bash
+npm run db:migrate:deploy
+```
+
+5. Start the apps:
+
+```bash
 npm run dev
 ```
 
-`npm i` builds `@vsp/backend-shared` automatically via its `prepare` script, so TypeScript and the IDE can resolve shared imports immediately.
-
-`npm run dev` rebuilds workspace dependencies (via Turbo `^build`) before starting apps. Shared package changes apply after `tsc --watch` rebuilds `dist/` and nodemon restarts the affected Nest service.
-
-## Local infrastructure (Docker)
+## What starts locally
 
 | Service | Host port | Notes |
 |---------|-----------|-------|
-| PostgreSQL | 5432 | Databases: `user_service`, `vehicle_service` (see `docker/postgres/init-databases.sql`) |
-| Redis | 6379 | Sessions (user-service) |
-| RabbitMQ | 5672 / 15672 | AMQP / management UI |
-| pgAdmin | 5050 | DB admin UI |
+| PostgreSQL | 5433 | Databases for `user_service` and `vehicle_service` |
+| Redis | 6379 | Sessions for `user-service` |
+| RabbitMQ | 5672 / 15672 | AMQP and management UI |
+| pgAdmin | 5050 | PostgreSQL admin UI |
 | RedisInsight | 5540 | Redis admin UI |
 
-App ports: frontend `3000`, user-service `4200`, vehicle-service `4203`.
+App ports:
+- frontend: `3000`
+- user-service: `4200`
+- vehicle-service: `4203`
 
-If Postgres was already running with the old compose file, recreate the volume so `vehicle_service` DB is created:
-
-```bash
-docker compose -f docker.compose.yml down -v
-docker compose -f docker.compose.yml up -d
-```
-
-## Common commands
+## Daily commands
 
 | Command | Description |
 |---------|-------------|
+| `npm run docker:dev:up` | Start local infrastructure |
+| `npm run docker:dev:down` | Stop local infrastructure |
+| `npm run docker:dev:logs` | Tail local infrastructure logs |
 | `npm run dev` | Start all apps in dev mode |
 | `npm run build` | Build all packages and apps |
 | `npm run lint` | Lint all workspaces |
 | `npm run test` | Run tests |
 | `npm run db:generate` | Regenerate Prisma clients |
+| `npm run db:migrate:deploy` | Apply existing Prisma migrations for both backend services |
 
-## Workspace layout
+## Notes
 
-| Path | Description |
-|------|-------------|
-| `apps/frontend` | Next.js frontend |
-| `apps/user-service` | User/auth NestJS service |
-| `apps/vehicle-service` | Vehicle NestJS service |
-| `packages/backend-shared` | Shared NestJS utilities (logger, filters) |
-
-## Shared package note
-
-During local dev, `tsc --watch` on `@vsp/backend-shared` rebuilds `dist/`; nodemon restarts Nest apps when `dist/` or app `src/` changes. To rebuild manually:
+- Prisma migrations are intentionally not auto-run during `build`, `dev`, or `docker compose up`.
+- If Postgres was initialized long ago and required databases are missing, recreate the Postgres volume and run migrations again:
 
 ```bash
-npm run build -w @vsp/backend-shared
+npm run docker:dev:down
+docker volume rm vehicle-service-platform_postgres_data
+npm run docker:dev:up
+npm run db:migrate:deploy
 ```

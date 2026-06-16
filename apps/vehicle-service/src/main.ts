@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { MicroserviceOptions } from '@nestjs/microservices';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Transport } from '@nestjs/microservices';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
@@ -8,9 +9,10 @@ import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { RMQ_QUEUES } from './common/constants/rabbitmq.constants.js';
 import { env } from './config/env.js';
+import { SessionService } from './infrastructure/session/session.service.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
 
@@ -27,7 +29,10 @@ async function bootstrap() {
 
   app.enableCors({
     origin: env.ALLOWED_ORIGIN,
+    credentials: true,
   });
+
+  const sessionService = app.get(SessionService);
 
   const port = Number(env.PORT ?? 4203);
 
@@ -50,6 +55,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.use(await sessionService.createMiddleware());
 
   await app.startAllMicroservices();
   await app.listen(port);

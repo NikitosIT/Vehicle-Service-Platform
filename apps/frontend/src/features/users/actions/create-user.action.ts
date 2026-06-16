@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { ApiError } from '@/lib/api/api-error';
+import { ApiError } from '@/api';
 
 import { createUser } from '../api/users.server';
 import { createUserSchema } from '../model/schemas/create-user.schema';

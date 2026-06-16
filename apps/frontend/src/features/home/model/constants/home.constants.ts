@@ -20,7 +20,7 @@ export const HERO_SLIDES = [
   {
     description:
       'Administrative-grade visibility across registered drivers and transport assets.',
-    image: '/infiniti.png',
+    image: '/lamborghini.png',
     title: 'Official fleet visibility',
   },
 ] as const;

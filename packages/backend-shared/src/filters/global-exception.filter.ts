@@ -4,9 +4,9 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-} from "@nestjs/common";
-import type { Request, Response } from "express";
-import { PinoLogger } from "nestjs-pino";
+} from '@nestjs/common';
+import type { Request, Response } from 'express';
+import { PinoLogger } from 'nestjs-pino';
 
 type ErrorResponse = {
   statusCode: number;
@@ -14,6 +14,7 @@ type ErrorResponse = {
   error: string;
   timestamp: string;
   path: string;
+  requestId?: string;
 };
 
 @Catch()
@@ -21,6 +22,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(private readonly logger: PinoLogger) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
+    const hostType = host.getType();
+
+    if (hostType !== 'http') {
+      throw exception;
+    }
+
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
@@ -31,18 +38,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const parsed = this.parseException(exception);
+    const requestId = this.getRequestId(req);
 
+    const publicError = status >= 500 ? 'InternalServerError' : parsed.error;
     const clientMessage =
-      status >= 500 ? "Internal server error" : parsed.message;
+      status >= 500 ? 'Internal server error' : parsed.message;
 
-    this.logException(req, status, parsed, exception);
+    this.logException(req, status, parsed, exception, requestId);
 
     const body: ErrorResponse = {
       statusCode: status,
       message: clientMessage,
-      error: parsed.error,
+      error: publicError,
       timestamp: new Date().toISOString(),
-      path: req.url,
+      path: req.originalUrl ?? req.url,
+      requestId,
     };
 
     res.status(status).json(body);
@@ -53,8 +63,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     status: number,
     parsed: { message: string | string[]; error: string },
     exception: unknown,
+    requestId?: string,
   ) {
-    const payload: Record<string, unknown> = { statusCode: status };
+    const payload: Record<string, unknown> = {
+      statusCode: status,
+      requestId,
+    };
 
     if (exception instanceof Error) {
       payload.err = exception;
@@ -71,6 +85,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     log(payload, logMessage);
   }
 
+  private getRequestId(req: Request): string | undefined {
+    const requestWithId = req as Request & { id?: string };
+
+    return requestWithId.id ?? req.headers['x-request-id']?.toString();
+  }
+
   private parseException(exception: unknown): {
     message: string | string[];
     error: string;
@@ -78,36 +98,36 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const response = exception.getResponse();
 
-      if (typeof response === "string") {
+      if (typeof response === 'string') {
         return {
           message: response,
           error: exception.name,
         };
       }
 
-      if (typeof response === "object" && response !== null) {
+      if (typeof response === 'object' && response !== null) {
         const body = response as Record<string, unknown>;
 
         return {
           message:
-            typeof body.message === "string" || Array.isArray(body.message)
+            typeof body.message === 'string' || Array.isArray(body.message)
               ? body.message
-              : exception.message || "Unexpected error",
-          error: typeof body.error === "string" ? body.error : exception.name,
+              : exception.message || 'Unexpected error',
+          error: typeof body.error === 'string' ? body.error : exception.name,
         };
       }
     }
 
     if (exception instanceof Error) {
       return {
-        message: exception.message || "Unexpected error",
+        message: exception.message || 'Unexpected error',
         error: exception.name,
       };
     }
 
     return {
-      message: "Unexpected error",
-      error: "InternalServerError",
+      message: 'Unexpected error',
+      error: 'InternalServerError',
     };
   }
 }

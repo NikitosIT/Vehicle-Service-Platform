@@ -4,17 +4,18 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import type {
+  RequestWithSession,
+  SessionWithAccount,
+} from '@vsp/backend-shared/auth-session';
 
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service.js';
 import { AuthMapper } from '../auth.mapper.js';
-import type {
-  PublicAccount,
-  RequestWithSession,
-  SessionWithAccount,
-} from '../auth.types.js';
+import type { PublicAccount } from '../auth.types.js';
 import type { LoginDto } from '../dto/login.dto.js';
 import type { RegisterDto } from '../dto/register.dto.js';
 import { PasswordService } from './password.service.js';
+import { LoginAttemptService } from './login-attempt.service.js';
 import { SessionService } from './session.service.js';
 
 @Injectable()
@@ -22,6 +23,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
+    private readonly loginAttemptService: LoginAttemptService,
     private readonly sessionService: SessionService,
     private readonly authMapper: AuthMapper,
   ) {}
@@ -61,6 +63,8 @@ export class AuthService {
     dto: LoginDto,
     request: RequestWithSession,
   ): Promise<PublicAccount> {
+    await this.loginAttemptService.assertNotBlocked(dto.email, request.ip);
+
     const account = await this.prisma.account.findUnique({
       where: {
         email: dto.email,
@@ -68,6 +72,7 @@ export class AuthService {
     });
 
     if (!account) {
+      await this.loginAttemptService.recordFailure(dto.email, request.ip);
       throw new UnauthorizedException('Invalid email or password');
     }
 
@@ -77,8 +82,11 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
+      await this.loginAttemptService.recordFailure(dto.email, request.ip);
       throw new UnauthorizedException('Invalid email or password');
     }
+
+    await this.loginAttemptService.reset(dto.email, request.ip);
 
     this.assertAccountCanLogin(account);
 

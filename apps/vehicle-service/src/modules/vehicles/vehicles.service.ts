@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
 import { CreateVehicleDto, UpdateVehicleDto } from './vehicles.dto.js';
@@ -11,6 +11,7 @@ export class VehiclesService {
   async createDefaultUserVehicle(payload: UserCreatedPayload) {
     return this.prisma.vehicle.create({
       data: {
+        accountId: payload.createdByAccountId,
         userId: payload.id,
         isDraft: true,
         make: 'Unknown',
@@ -20,9 +21,10 @@ export class VehiclesService {
     });
   }
 
-  async create(dto: CreateVehicleDto) {
+  async create(dto: CreateVehicleDto, accountId: string) {
     const draftVehicle = await this.prisma.vehicle.findFirst({
       where: {
+        accountId,
         userId: dto.userId,
         isDraft: true,
       },
@@ -44,6 +46,7 @@ export class VehiclesService {
 
     const vehicle = await this.prisma.vehicle.create({
       data: {
+        accountId,
         userId: dto.userId,
         make: dto.make,
         model: dto.model,
@@ -54,9 +57,10 @@ export class VehiclesService {
     return vehicle;
   }
 
-  findAll(userId?: string) {
+  findAll(accountId: string, userId?: string) {
     return this.prisma.vehicle.findMany({
       where: {
+        accountId,
         isDraft: false,
         ...(userId ? { userId } : {}),
       },
@@ -66,23 +70,38 @@ export class VehiclesService {
     });
   }
 
-  findOneById(id: number) {
-    return this.prisma.vehicle.findUnique({ where: { id } });
+  findOneById(id: number, accountId: string) {
+    return this.findOwnedByIdOrThrow(id, accountId);
   }
 
-  async updateById(id: number, dto: UpdateVehicleDto) {
-    const vehicle = await this.prisma.vehicle.update({
+  async updateById(id: number, dto: UpdateVehicleDto, accountId: string) {
+    await this.findOwnedByIdOrThrow(id, accountId);
+
+    return this.prisma.vehicle.update({
       where: { id },
       data: dto,
     });
-
-    return vehicle;
   }
 
-  async deleteById(id: number) {
-    const vehicle = await this.prisma.vehicle.delete({
+  async deleteById(id: number, accountId: string) {
+    await this.findOwnedByIdOrThrow(id, accountId);
+
+    return this.prisma.vehicle.delete({
       where: { id },
     });
+  }
+
+  private async findOwnedByIdOrThrow(id: number, accountId: string) {
+    const vehicle = await this.prisma.vehicle.findFirst({
+      where: {
+        id,
+        accountId,
+      },
+    });
+
+    if (!vehicle) {
+      throw new NotFoundException('Vehicle not found');
+    }
 
     return vehicle;
   }

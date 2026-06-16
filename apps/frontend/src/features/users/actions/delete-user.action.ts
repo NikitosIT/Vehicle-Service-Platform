@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { ApiError } from '@/lib/api/api-error';
+import { ApiError } from '@/api';
 
 import { deleteUser } from '../api/users.server';
 

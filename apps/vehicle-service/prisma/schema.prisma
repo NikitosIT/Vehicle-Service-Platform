@@ -13,13 +13,17 @@ datasource db {
 }
 
 model Vehicle {
-  id      Int     @id @default(autoincrement())
-  make    String
-  model   String
-  year    Int?
-  userId  String  @map("user_id")
-  isDraft Boolean @default(false) @map("is_draft")
+  id        Int     @id @default(autoincrement())
+  make      String
+  model     String
+  year      Int?
+  userId    String  @map("user_id")
+  accountId String? @map("account_id")
+  isDraft   Boolean @default(false) @map("is_draft")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([accountId])
+  @@index([accountId, userId])
 }

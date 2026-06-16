@@ -1,6 +1,6 @@
 import { Geist } from 'next/font/google';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 
 import './globals.css';
 

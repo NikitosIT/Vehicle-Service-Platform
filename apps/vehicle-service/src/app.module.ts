@@ -28,11 +28,11 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module.js';
     SessionModule,
     VehiclesModule,
   ],
-  // providers: [
-  //   {
-  //     provide: APP_FILTER,
-  //     useClass: GlobalExceptionFilter,
-  //   },
-  // ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

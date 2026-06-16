@@ -50,11 +50,14 @@ export class SessionService {
   }
 
   clearCookie(response: Response) {
-    response.clearCookie(getSessionCookieName(env.NODE_ENV, env.SESSION_COOKIE_NAME), {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: env.NODE_ENV === 'production',
-    });
+    response.clearCookie(
+      getSessionCookieName(env.NODE_ENV, env.SESSION_COOKIE_NAME),
+      {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: env.NODE_ENV === 'production',
+      },
+    );
   }
 
   private toError(error: unknown) {

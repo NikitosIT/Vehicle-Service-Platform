@@ -14,8 +14,8 @@ import { AuthMapper } from '../auth.mapper.js';
 import type { PublicAccount } from '../auth.types.js';
 import type { LoginDto } from '../dto/login.dto.js';
 import type { RegisterDto } from '../dto/register.dto.js';
-import { PasswordService } from './password.service.js';
 import { LoginAttemptService } from './login-attempt.service.js';
+import { PasswordService } from './password.service.js';
 import { SessionService } from './session.service.js';
 
 @Injectable()

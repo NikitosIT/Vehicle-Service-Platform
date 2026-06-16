@@ -8,10 +8,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import {
-  AuthGuard,
-  CurrentAccountId,
-} from '@vsp/backend-shared/auth-session';
+import { AuthGuard, CurrentAccountId } from '@vsp/backend-shared/auth-session';
 
 import { CreateUserDto, UpdateUserDto } from './users.dto.js';
 import { UsersService } from './users.service.js';

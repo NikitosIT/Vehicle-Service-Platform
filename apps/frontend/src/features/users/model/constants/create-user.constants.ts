@@ -6,9 +6,8 @@ export const CREATE_USER_DEFAULT_VALUES: CreateUserInput = {
 };
 
 export const CREATE_USER_MESSAGES = {
-  description:
-    'Add a new user with a valid email and a short display name. The list will refresh after successful creation.',
-  submitIdle: 'Create user',
-  submitLoading: 'Creating user...',
-  success: 'User created successfully.',
+  description: 'Enter the email and full name to create a new user record.',
+  submitIdle: 'Save user',
+  submitLoading: 'Saving...',
+  success: 'User record created.',
 } as const;

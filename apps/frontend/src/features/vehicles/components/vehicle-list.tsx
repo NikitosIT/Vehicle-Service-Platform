@@ -15,12 +15,12 @@ export function VehicleList({
 }: VehicleListProps) {
   if (vehicles.length === 0) {
     return (
-      <div className="rounded-4xl border border-dashed border-slate-300 bg-white/70 p-8 text-center shadow-sm">
+      <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50/80 p-8 text-center">
         <h3 className="text-xl font-semibold text-slate-950">
-          No vehicles registered yet
+          No linked vehicles
         </h3>
         <p className="mt-2 text-sm text-slate-600">
-          Once a transport vehicle is linked to a user, it will appear here.
+          Add the first vehicle to attach it to this user record.
         </p>
       </div>
     );

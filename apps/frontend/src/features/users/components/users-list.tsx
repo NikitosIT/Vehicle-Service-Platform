@@ -18,10 +18,11 @@ export function UsersList({ users }: UsersListProps) {
   if (users.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-10 text-center shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">No users yet</h2>
+        <h2 className="text-xl font-semibold text-slate-900">
+          No user records
+        </h2>
         <p className="mt-2 text-sm text-slate-600">
-          The list is empty for now. As soon as users appear in the database,
-          they will show up here.
+          Create the first user to start filling the registry.
         </p>
       </div>
     );

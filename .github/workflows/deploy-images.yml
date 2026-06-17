@@ -33,16 +33,16 @@ jobs:
 
       - name: Build and push user-service image
         run: |
-          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ vars.ECR_USER_SERVICE_REPOSITORY }}
+          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ vars.ECR_USER_SERVICE_REPOSITORY }}"
 
           docker build \
             -f apps/user-service/Dockerfile \
-            -t $IMAGE_URI:latest \
-            -t $IMAGE_URI:${{ github.sha }} \
+            -t "${IMAGE_URI}:latest" \
+            -t "${IMAGE_URI}:${{ github.sha }}" \
             .
 
-          docker push $IMAGE_URI:latest
-          docker push $IMAGE_URI:${{ github.sha }}
+          docker push "${IMAGE_URI}:latest"
+          docker push "${IMAGE_URI}:${{ github.sha }}"
 
       - name: Build and push vehicle-service image
         run: |

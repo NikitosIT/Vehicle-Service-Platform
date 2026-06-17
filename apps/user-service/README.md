@@ -1,6 +1,6 @@
 # User Service
 
-NestJS service for user accounts, authentication, and session handling.
+NestJS service for user accounts, authentication, and powerfull session handling.
 
 ## Env files
 

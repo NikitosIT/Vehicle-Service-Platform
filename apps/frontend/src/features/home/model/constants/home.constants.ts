@@ -1,25 +1,22 @@
 export const HERO_SLIDES = [
   {
-    description:
-      'Registry-ready management for official user and vehicle records.',
+    description: 'User and vehicle records in one clean operational view.',
     image: '/bmw-m.png',
     title: 'Unified vehicle oversight',
   },
   {
-    description:
-      'Track service reminders, ownership details, and upcoming maintenance events.',
+    description: 'Service due dates, ownership details, and follow-up events.',
     image: '/skoda.png',
     title: 'Maintenance-first operations',
   },
   {
-    description:
-      'Keep communication clear with service notices, штраф alerts, and follow-ups.',
+    description: 'Notices, fines, and reminders without losing the thread.',
     image: '/volkswagen.png',
     title: 'Notification workflows',
   },
   {
     description:
-      'Administrative-grade visibility across registered drivers and transport assets.',
+      'Fast lookup across drivers, vehicles, and account-owned data.',
     image: '/lamborghini.png',
     title: 'Official fleet visibility',
   },
@@ -27,30 +24,28 @@ export const HERO_SLIDES = [
 
 export const PLATFORM_PILLARS = [
   {
-    description:
-      'Register users, keep their profiles current, and connect them to the right transport units.',
+    description: 'Create, update, and connect operator-owned user profiles.',
     title: 'User registry',
   },
   {
-    description:
-      'Store transport data in a structured catalog for faster lookup and operational control.',
+    description: 'Structured vehicle records built for lookup and control.',
     title: 'Vehicle records',
   },
   {
     description:
-      'Send reminders about maintenance, inspections, fines, and other time-sensitive events.',
+      'Reminders for maintenance, inspections, fines, and deadlines.',
     title: 'Notification service',
   },
 ] as const;
 
 export const PLATFORM_METRICS = [
-  { label: 'Core workflows', value: '03' },
-  { label: 'Registry view', value: '24/7' },
-  { label: 'Operational trace', value: '100%' },
+  { label: 'Core modules', value: '03' },
+  { label: 'Live registry', value: '24/7' },
+  { label: 'Account scope', value: '100%' },
 ] as const;
 
 export const PLATFORM_STEPS = [
-  'Register a user and create a trustworthy administrative profile.',
-  'Link one or more vehicles to that user inside the official registry.',
-  'Trigger reminders and alerts about maintenance, inspections, or fines.',
+  'Create a user profile.',
+  'Attach one or more vehicles.',
+  'Send reminders and alerts.',
 ] as const;

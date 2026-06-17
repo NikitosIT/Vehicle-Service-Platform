@@ -8,8 +8,8 @@ export const getUpdateUserDefaultValues = (
 
 export const UPDATE_USER_MESSAGES = {
   description:
-    'Update the display name for this user. Email stays read-only for now.',
-  submitIdle: 'Save name',
+    'Review the current record and update the display name if required.',
+  submitIdle: 'Save changes',
   submitLoading: 'Saving...',
-  success: 'Name updated successfully.',
+  success: 'User record updated.',
 } as const;

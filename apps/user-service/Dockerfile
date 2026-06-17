@@ -1,4 +1,10 @@
-FROM node:24-slim AS deps
+FROM node:24-slim AS base
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM base AS deps
 
 WORKDIR /app
 
@@ -8,7 +14,7 @@ COPY packages/backend-shared/package.json packages/backend-shared/package.json
 
 RUN npm ci --ignore-scripts
 
-FROM node:24-slim AS builder
+FROM base AS builder
 
 WORKDIR /app
 
@@ -22,7 +28,7 @@ COPY packages/backend-shared ./packages/backend-shared
 RUN npm run db:generate -w user-service
 RUN npm run build -w user-service
 
-FROM node:24-slim AS runner
+FROM base AS runner
 
 WORKDIR /app
 

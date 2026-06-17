@@ -20,14 +20,12 @@ export function UsersPage({ users }: UsersPageProps) {
               Users
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              This page is rendered on the server and reads the current users
-              list directly from the backend service through a dedicated
-              feature-level API layer.
+              Review the current user registry and create new records.
             </p>
           </div>
 
           <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
-            {users.length} {users.length === 1 ? 'user' : 'users'} loaded
+            {users.length} {users.length === 1 ? 'record' : 'records'}
           </div>
         </div>
 

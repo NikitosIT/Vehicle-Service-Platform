@@ -7,9 +7,8 @@ export const CREATE_VEHICLE_DEFAULT_VALUES: CreateVehicleFormValues = {
 };
 
 export const CREATE_VEHICLE_MESSAGES = {
-  description:
-    'Register a vehicle for this user and link it through the official owner record.',
-  submitIdle: 'Add vehicle',
-  submitLoading: 'Saving vehicle...',
-  success: 'Vehicle added successfully.',
+  description: 'Enter the vehicle details and link the record to this user.',
+  submitIdle: 'Save vehicle',
+  submitLoading: 'Saving...',
+  success: 'Vehicle record created.',
 } as const;

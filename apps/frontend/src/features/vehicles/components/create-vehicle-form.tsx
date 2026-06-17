@@ -19,25 +19,31 @@ export function CreateVehicleForm({ userId }: CreateVehicleFormProps) {
   const yearError = form.formState.errors.year?.message;
 
   return (
-    <section className="rounded-4xl border border-slate-200 bg-white/90 p-8 shadow-sm">
-      <div className="mb-6">
+    <section className="rounded-[2rem] border border-white/70 bg-white/72 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur-sm lg:p-7">
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <p className="text-sm font-medium uppercase tracking-[0.24em] text-slate-500">
-          Create vehicle
+          Vehicle record
         </p>
-        <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-          Register a transport vehicle
-        </h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
-          {CREATE_VEHICLE_MESSAGES.description}
-        </p>
+        <div className="lg:max-w-xl">
+          <h2 className="text-2xl font-semibold text-slate-950">
+            Register vehicle
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {CREATE_VEHICLE_MESSAGES.description}
+          </p>
+        </div>
+        <div className="grid gap-2 rounded-3xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-600 lg:min-w-60">
+          <p>Make and model are required.</p>
+          <p>Year can be left empty.</p>
+        </div>
       </div>
 
-      <form className="grid gap-4" onSubmit={handleSubmit}>
-        <div className="grid gap-4 md:grid-cols-2">
+      <form className="grid gap-4 lg:max-w-4xl" onSubmit={handleSubmit}>
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr_0.7fr]">
           <FormField
             disabled={isPending}
             error={makeError}
-            hint="For example: Toyota, BMW, Audi."
+            hint="Brand"
             label="Make"
             placeholder="Toyota"
             type="text"
@@ -47,23 +53,23 @@ export function CreateVehicleForm({ userId }: CreateVehicleFormProps) {
           <FormField
             disabled={isPending}
             error={modelError}
-            hint="For example: Corolla, X5, A6."
+            hint="Model name"
             label="Model"
             placeholder="Corolla"
             type="text"
             {...form.register('model')}
           />
-        </div>
 
-        <FormField
-          disabled={isPending}
-          error={yearError}
-          hint="Optional. Use a valid production year."
-          label="Year"
-          placeholder="2024"
-          type="number"
-          {...form.register('year')}
-        />
+          <FormField
+            disabled={isPending}
+            error={yearError}
+            hint="Optional"
+            label="Year"
+            placeholder="2024"
+            type="number"
+            {...form.register('year')}
+          />
+        </div>
 
         {serverError ? (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -77,8 +83,16 @@ export function CreateVehicleForm({ userId }: CreateVehicleFormProps) {
           </div>
         ) : null}
 
-        <div className="flex items-center justify-end pt-2">
-          <Button isLoading={isPending} type="submit">
+        <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-500">
+            The vehicle is linked to the current user after saving.
+          </p>
+
+          <Button
+            className="w-full sm:w-auto"
+            isLoading={isPending}
+            type="submit"
+          >
             {isPending
               ? CREATE_VEHICLE_MESSAGES.submitLoading
               : CREATE_VEHICLE_MESSAGES.submitIdle}

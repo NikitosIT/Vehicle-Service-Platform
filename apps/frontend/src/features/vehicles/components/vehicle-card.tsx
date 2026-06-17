@@ -21,7 +21,7 @@ export function VehicleCard({
   vehicle,
 }: VehicleCardProps) {
   return (
-    <article className="rounded-4xl border border-slate-200 bg-white/90 p-5 shadow-sm transition hover:shadow-md">
+    <article className="rounded-[1.75rem] border border-slate-200/80 bg-white/84 p-5 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition hover:border-slate-300 hover:shadow-[0_18px_36px_rgba(15,23,42,0.08)]">
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -39,7 +39,7 @@ export function VehicleCard({
           </div>
 
           <div className="flex flex-col items-start gap-3 md:items-end">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/85 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               Owner ID: {vehicle.userId}
             </div>
 
@@ -55,14 +55,13 @@ export function VehicleCard({
         </div>
 
         {showControls ? (
-          <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 rounded-[1.5rem] border border-slate-200 bg-slate-50/85 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 Manage vehicle record
               </p>
               <p className="mt-1 text-sm text-slate-600">
-                Update the transport details or remove the vehicle from the
-                registry.
+                Update the details or remove the record.
               </p>
             </div>
 

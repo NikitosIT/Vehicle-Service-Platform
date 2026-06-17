@@ -14,22 +14,49 @@ env:
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
 
 jobs:
-  push-images:
-    name: Build and push Docker images
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      user_service: ${{ steps.filter.outputs.user_service }}
+      vehicle_service: ${{ steps.filter.outputs.vehicle_service }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            user_service:
+              - 'apps/user-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - '.dockerignore'
+            vehicle_service:
+              - 'apps/vehicle-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - '.dockerignore'
+
+  push-user-service:
+    needs: changes
+    if: needs.changes.outputs.user_service == 'true'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
+      - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push user-service image
         run: |
@@ -44,15 +71,30 @@ jobs:
           docker push "${IMAGE_URI}:latest"
           docker push "${IMAGE_URI}:${{ github.sha }}"
 
+  push-vehicle-service:
+    needs: changes
+    if: needs.changes.outputs.vehicle_service == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build and push vehicle-service image
         run: |
-          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ vars.ECR_VEHICLE_SERVICE_REPOSITORY }}
+          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ vars.ECR_VEHICLE_SERVICE_REPOSITORY }}"
 
           docker build \
             -f apps/vehicle-service/Dockerfile \
-            -t $IMAGE_URI:latest \
-            -t $IMAGE_URI:${{ github.sha }} \
+            -t "${IMAGE_URI}:latest" \
+            -t "${IMAGE_URI}:${{ github.sha }}" \
             .
 
-          docker push $IMAGE_URI:latest
-          docker push $IMAGE_URI:${{ github.sha }}
+          docker push "${IMAGE_URI}:latest"
+          docker push "${IMAGE_URI}:${{ github.sha }}"

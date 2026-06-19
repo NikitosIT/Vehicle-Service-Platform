@@ -91,3 +91,18 @@ docker volume rm vehicle-service-platform_postgres_data
 npm run docker:dev:up
 npm run db:migrate:deploy
 ```
+
+## AWS deployment
+
+Full production deployment uses Terraform + ECS Express Mode.
+
+See [infra/README.md](infra/README.md) for architecture, prerequisites, and manual steps.
+
+Quick start:
+
+```bash
+chmod +x infra/scripts/*.sh
+npm run deploy:aws
+```
+
+This provisions RDS, Redis, RabbitMQ, ECR, three ECS Express services, and runs Prisma migrations.

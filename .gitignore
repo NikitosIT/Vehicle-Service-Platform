@@ -21,6 +21,19 @@ lerna-debug.log*
 !.env.example
 !.env.dev
 
+# terraform
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfvars
+!**/terraform.tfvars.example
+**/crash.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+
 # test
 coverage
 .nyc_output

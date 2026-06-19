@@ -1,0 +1,13 @@
+aws_region  = "eu-central-1"
+project_name = "vsp"
+environment  = "prod"
+image_tag    = "latest"
+
+# Leave empty on the first apply. After `terraform apply`, copy output `frontend_url` here and apply again.
+frontend_url = ""
+
+# Optional sizing overrides
+# ecs_cpu      = "512"
+# ecs_memory   = "1024"
+# ecs_min_tasks = 1
+# ecs_max_tasks = 4

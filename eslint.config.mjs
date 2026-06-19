@@ -4,7 +4,11 @@ import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
+
+const tsconfigRootDir = dirname(fileURLToPath(import.meta.url));
 
 const applyToTsFiles = (config) => ({
   ...config,
@@ -13,6 +17,14 @@ const applyToTsFiles = (config) => ({
     'apps/vehicle-service/**/*.{ts,tsx}',
     'packages/backend-shared/**/*.{ts,tsx}',
   ],
+  languageOptions: {
+    ...config.languageOptions,
+    parserOptions: {
+      ...config.languageOptions?.parserOptions,
+      projectService: true,
+      tsconfigRootDir,
+    },
+  },
 });
 
 export default defineConfig([
@@ -54,6 +66,7 @@ export default defineConfig([
       parser: tseslint.parser,
       parserOptions: {
         projectService: true,
+        tsconfigRootDir,
       },
       globals: globals.node,
     },

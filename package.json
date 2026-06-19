@@ -33,7 +33,10 @@
     "db:studio:vehicle": "npm run db:studio -w vehicle-service",
     "db:seed:user": "npm run db:seed -w user-service",
     "db:seed:vehicle": "npm run db:seed -w vehicle-service",
-    "db:seed": "npm run db:seed:user && npm run db:seed:vehicle"
+    "db:seed": "npm run db:seed:user && npm run db:seed:vehicle",
+    "deploy:aws": "./infra/scripts/deploy.sh",
+    "deploy:aws:build": "./infra/scripts/build-and-push.sh",
+    "deploy:aws:migrate": "./infra/scripts/run-migrations.sh all"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

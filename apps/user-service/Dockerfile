@@ -47,6 +47,9 @@ COPY --from=builder /app/apps/user-service/generated ./apps/user-service/generat
 COPY --from=builder /app/apps/user-service/prisma ./apps/user-service/prisma
 COPY --from=builder /app/packages/backend-shared/package.json ./packages/backend-shared/package.json
 COPY --from=builder /app/packages/backend-shared/dist ./packages/backend-shared/dist
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 
 WORKDIR /app/apps/user-service
 

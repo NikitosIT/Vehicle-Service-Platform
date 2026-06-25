@@ -1,15 +1,23 @@
 'use client';
 
+import type { UseFormReturn } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 
 import { useRegisterForm } from '../hooks/use-register-form';
+import type { RegisterInput } from '../model/schemas/auth.schemas';
 
-export function RegisterForm() {
-  const { form, handleSubmit, isPending, serverError } = useRegisterForm();
+interface RegisterFormProps {
+  form: UseFormReturn<RegisterInput>;
+}
+
+export function RegisterForm({ form }: RegisterFormProps) {
+  const { handleSubmit, isPending, serverError } = useRegisterForm(form);
+  const hasServerError = Boolean(serverError);
 
   return (
-    <form className="grid gap-4" onSubmit={handleSubmit}>
+    <form className="flex h-full flex-col gap-4" onSubmit={handleSubmit}>
       <FormField
         autoComplete="name"
         disabled={isPending}
@@ -40,15 +48,19 @@ export function RegisterForm() {
         {...form.register('password')}
       />
 
-      {serverError ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {serverError}
-        </div>
-      ) : null}
+      <div className="min-h-[4.5rem]">
+        {hasServerError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700 break-words">
+            {serverError}
+          </div>
+        ) : null}
+      </div>
 
       <Button className="w-full" isLoading={isPending} type="submit">
         {isPending ? 'Creating account...' : 'Create account'}
       </Button>
+
+      <div className="mt-auto min-h-[8.5rem] rounded-[1.25rem] border border-transparent px-4 py-3" />
     </form>
   );
 }

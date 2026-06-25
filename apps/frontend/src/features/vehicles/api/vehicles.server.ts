@@ -6,12 +6,13 @@ import 'server-only';
 
 import {
   vehicleListItemSchema,
-  vehiclesListSchema,
+  vehiclesPageSchema,
 } from '../model/schemas/vehicles.schemas';
 import type {
   CreateVehicleInput,
   UpdateVehicleInput,
   VehicleListItem,
+  VehiclesPageData,
 } from '../model/types/vehicles.types';
 
 async function getSessionHeaders(additionalHeaders?: HeadersInit) {
@@ -23,8 +24,26 @@ async function getSessionHeaders(additionalHeaders?: HeadersInit) {
   };
 }
 
-export async function getVehicles() {
-  return fetchJson(makeVehiclesUrl(), vehiclesListSchema, {
+interface GetVehiclesParams {
+  page: number;
+  pageSize: number;
+  userId?: string;
+}
+
+export async function getVehicles({
+  page,
+  pageSize,
+  userId,
+}: GetVehiclesParams): Promise<VehiclesPageData> {
+  const url = makeVehiclesUrl();
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('pageSize', String(pageSize));
+
+  if (userId) {
+    url.searchParams.set('userId', userId);
+  }
+
+  return fetchJson(url, vehiclesPageSchema, {
     headers: await getSessionHeaders(),
     next: {
       revalidate: 60,
@@ -32,15 +51,17 @@ export async function getVehicles() {
   });
 }
 
-export async function getVehiclesByUserId(userId: string) {
-  const url = makeVehiclesUrl();
-  url.searchParams.set('userId', userId);
-
-  return fetchJson(url, vehiclesListSchema, {
-    headers: await getSessionHeaders(),
-    next: {
-      revalidate: 60,
-    },
+export async function getVehiclesByUserId(
+  userId: string,
+  pagination?: {
+    page: number;
+    pageSize: number;
+  },
+) {
+  return getVehicles({
+    page: pagination?.page ?? 1,
+    pageSize: pagination?.pageSize ?? 10,
+    userId,
   });
 }
 

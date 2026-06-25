@@ -17,6 +17,11 @@ require_command docker
 require_command aws
 require_command terraform
 
+terraform_eval() {
+  local expression="$1"
+  printf '%s\n' "${expression}" | terraform console | tr -d '"\r'
+}
+
 cd "${TERRAFORM_DIR}"
 
 if [[ ! -f terraform.tfvars ]]; then
@@ -30,9 +35,9 @@ ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 aws ecr get-login-password --region "${AWS_REGION}" \
   | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 
-FRONTEND_REPO="$(terraform output -json ecr_repositories | python3 -c "import json,sys; print(json.load(sys.stdin)['frontend'])")"
-USER_REPO="$(terraform output -json ecr_repositories | python3 -c "import json,sys; print(json.load(sys.stdin)['user_service'])")"
-VEHICLE_REPO="$(terraform output -json ecr_repositories | python3 -c "import json,sys; print(json.load(sys.stdin)['vehicle_service'])")"
+FRONTEND_REPO="$(terraform_eval 'aws_ecr_repository.frontend.repository_url')"
+USER_REPO="$(terraform_eval 'aws_ecr_repository.user_service.repository_url')"
+VEHICLE_REPO="$(terraform_eval 'aws_ecr_repository.vehicle_service.repository_url')"
 
 echo "Building and pushing frontend:${IMAGE_TAG}"
 docker build -f "${ROOT_DIR}/apps/frontend/Dockerfile" -t "${FRONTEND_REPO}:${IMAGE_TAG}" "${ROOT_DIR}"

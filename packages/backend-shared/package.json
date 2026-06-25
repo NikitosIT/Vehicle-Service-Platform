@@ -8,6 +8,10 @@
       "types": "./dist/auth-session/index.d.ts",
       "default": "./dist/auth-session/index.js"
     },
+    "./paginate": {
+      "types": "./dist/paginate/index.d.ts",
+      "default": "./dist/paginate/index.js"
+    },
     "./logger": {
       "types": "./dist/logger/index.d.ts",
       "default": "./dist/logger/index.js"
@@ -29,6 +33,8 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "express-session": "^1.19.0"
   },
   "devDependencies": {

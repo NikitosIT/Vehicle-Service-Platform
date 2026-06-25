@@ -6,9 +6,11 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, CurrentAccountId } from '@vsp/backend-shared/auth-session';
+import { PaginateQueryDto } from '@vsp/backend-shared/paginate';
 
 import { CreateUserDto, UpdateUserDto } from './users.dto.js';
 import { UsersService } from './users.service.js';
@@ -27,8 +29,11 @@ export class UsersController {
   }
 
   @Get()
-  findAll(@CurrentAccountId() accountId: string) {
-    return this.usersService.findAll(accountId);
+  findAll(
+    @Query() query: PaginateQueryDto,
+    @CurrentAccountId() accountId: string,
+  ) {
+    return this.usersService.findAll(query, accountId);
   }
 
   @Get(':id')

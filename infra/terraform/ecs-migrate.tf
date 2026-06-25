@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "user_migrate" {
       name      = "migrate"
       image     = "${aws_ecr_repository.user_service.repository_url}:${var.image_tag}"
       essential = true
-      command   = ["./node_modules/.bin/prisma", "migrate", "deploy"]
+      command   = ["/app/node_modules/.bin/prisma", "migrate", "deploy"]
       environment = [
         {
           name  = "NODE_ENV"
@@ -55,7 +55,7 @@ resource "aws_ecs_task_definition" "vehicle_migrate" {
       name      = "migrate"
       image     = "${aws_ecr_repository.vehicle_service.repository_url}:${var.image_tag}"
       essential = true
-      command   = ["./node_modules/.bin/prisma", "migrate", "deploy"]
+      command   = ["/app/node_modules/.bin/prisma", "migrate", "deploy"]
       environment = [
         {
           name  = "NODE_ENV"

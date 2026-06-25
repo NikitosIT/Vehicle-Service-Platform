@@ -3,12 +3,16 @@ import type { VehicleListItem } from '../model/types/vehicles.types';
 import { VehicleCard } from './vehicle-card';
 
 interface VehicleListProps {
+  compact?: boolean;
+  hideOwnerMeta?: boolean;
   showControls?: boolean;
   showOwnerLink?: boolean;
   vehicles: VehicleListItem[];
 }
 
 export function VehicleList({
+  compact = false,
+  hideOwnerMeta = false,
   showControls = true,
   showOwnerLink = false,
   vehicles,
@@ -27,10 +31,12 @@ export function VehicleList({
   }
 
   return (
-    <div className="grid gap-4">
+    <div className={compact ? 'grid gap-3' : 'grid gap-4'}>
       {vehicles.map((vehicle) => (
         <VehicleCard
+          compact={compact}
           key={vehicle.id}
+          hideOwnerMeta={hideOwnerMeta}
           showControls={showControls}
           showOwnerLink={showOwnerLink}
           vehicle={vehicle}

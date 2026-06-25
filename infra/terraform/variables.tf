@@ -49,7 +49,7 @@ variable "redis_node_type" {
 variable "mq_instance_type" {
   description = "Amazon MQ broker instance type."
   type        = string
-  default     = "mq.t3.micro"
+  default     = "mq.t3.small"
 }
 
 variable "ecs_cpu" {
@@ -90,12 +90,6 @@ variable "db_deletion_protection" {
 
 variable "enable_nat_gateway" {
   description = "Create a NAT gateway for private subnet egress."
-  type        = bool
-  default     = true
-}
-
-variable "single_nat_gateway" {
-  description = "Use one NAT gateway for all AZs to reduce cost."
   type        = bool
   default     = true
 }

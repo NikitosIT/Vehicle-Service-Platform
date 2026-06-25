@@ -12,7 +12,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard, CurrentAccountId } from '@vsp/backend-shared/auth-session';
 
-import { CreateVehicleDto, UpdateVehicleDto } from './vehicles.dto.js';
+import {
+  CreateVehicleDto,
+  ListVehiclesQueryDto,
+  UpdateVehicleDto,
+} from './vehicles.dto.js';
 import { VehiclesService } from './vehicles.service.js';
 
 @UseGuards(AuthGuard)
@@ -23,9 +27,9 @@ export class VehiclesController {
   @Get()
   findAll(
     @CurrentAccountId() accountId: string,
-    @Query('userId') userId?: string,
+    @Query() query: ListVehiclesQueryDto,
   ) {
-    return this.vehiclesService.findAll(accountId, userId);
+    return this.vehiclesService.findAll(accountId, query);
   }
 
   @Get(':id')

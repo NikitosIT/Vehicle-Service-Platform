@@ -1,3 +1,4 @@
+import { PaginateQueryDto } from '@vsp/backend-shared/paginate';
 import { Type } from 'class-transformer';
 import {
   IsInt,
@@ -51,4 +52,11 @@ export class UpdateVehicleDto {
   @Min(1886)
   @Max(2100)
   year?: number;
+}
+
+export class ListVehiclesQueryDto extends PaginateQueryDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  userId?: string;
 }

@@ -1,12 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PaginateService } from '@vsp/backend-shared/paginate';
 
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
-import { CreateVehicleDto, UpdateVehicleDto } from './vehicles.dto.js';
+import {
+  CreateVehicleDto,
+  ListVehiclesQueryDto,
+  UpdateVehicleDto,
+} from './vehicles.dto.js';
 import { UserCreatedPayload } from './vehicles.types.js';
 
 @Injectable()
 export class VehiclesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly paginateService: PaginateService,
+  ) {}
 
   async createDefaultUserVehicle(payload: UserCreatedPayload) {
     return this.prisma.vehicle.create({
@@ -57,16 +65,35 @@ export class VehiclesService {
     return vehicle;
   }
 
-  findAll(accountId: string, userId?: string) {
-    return this.prisma.vehicle.findMany({
-      where: {
-        accountId,
-        isDraft: false,
-        ...(userId ? { userId } : {}),
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+  async findAll(accountId: string, query: ListVehiclesQueryDto) {
+    const pagination = this.paginateService.resolve({
+      page: query.page,
+      pageSize: query.pageSize,
+    });
+
+    const where = {
+      accountId,
+      isDraft: false,
+      ...(query.userId ? { userId: query.userId } : {}),
+    };
+
+    const [vehicles, totalItems] = await Promise.all([
+      this.prisma.vehicle.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      this.prisma.vehicle.count({
+        where,
+      }),
+    ]);
+
+    return this.paginateService.buildPaginatedResult({
+      items: vehicles,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      totalItems,
     });
   }
 

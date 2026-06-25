@@ -1,7 +1,7 @@
 FROM node:24-slim AS base
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && apt-get install -y --no-install-recommends openssl ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
@@ -34,6 +34,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=4200
+RUN mkdir -p /app/certs \
+    && curl -fsSL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o /app/certs/rds-global-bundle.pem
+ENV NODE_EXTRA_CA_CERTS=/app/certs/rds-global-bundle.pem
 
 COPY package.json package-lock.json ./
 COPY apps/user-service/package.json apps/user-service/package.json
@@ -42,6 +45,7 @@ COPY packages/backend-shared/package.json packages/backend-shared/package.json
 RUN npm ci --omit=dev --ignore-scripts --workspace user-service --workspace @vsp/backend-shared --include-workspace-root=false
 
 COPY --from=builder /app/apps/user-service/package.json ./apps/user-service/package.json
+COPY --from=builder /app/apps/user-service/prisma.config.ts ./apps/user-service/prisma.config.ts
 COPY --from=builder /app/apps/user-service/dist ./apps/user-service/dist
 COPY --from=builder /app/apps/user-service/generated ./apps/user-service/generated
 COPY --from=builder /app/apps/user-service/prisma ./apps/user-service/prisma

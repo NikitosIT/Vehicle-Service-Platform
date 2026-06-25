@@ -2,7 +2,6 @@ resource "aws_db_instance" "user_service" {
   identifier = "${local.name_prefix}-user-db"
 
   engine         = "postgres"
-  engine_version = "17.4"
   instance_class = var.db_instance_class
 
   allocated_storage = 20
@@ -29,7 +28,6 @@ resource "aws_db_instance" "vehicle_service" {
   identifier = "${local.name_prefix}-vehicle-db"
 
   engine         = "postgres"
-  engine_version = "17.4"
   instance_class = var.db_instance_class
 
   allocated_storage = 20

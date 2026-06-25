@@ -33,27 +33,24 @@ locals {
 
   user_service_endpoint = var.deploy_application_services ? try(
     one([
-      for config in aws_ecs_express_gateway_service.user_service[0].active_configurations :
-      config.ingress_paths[0].endpoint
-      if length(config.ingress_paths) > 0
+      for path in aws_ecs_express_gateway_service.user_service[0].ingress_paths :
+      path.endpoint
     ]),
     null,
   ) : null
 
   vehicle_service_endpoint = var.deploy_application_services ? try(
     one([
-      for config in aws_ecs_express_gateway_service.vehicle_service[0].active_configurations :
-      config.ingress_paths[0].endpoint
-      if length(config.ingress_paths) > 0
+      for path in aws_ecs_express_gateway_service.vehicle_service[0].ingress_paths :
+      path.endpoint
     ]),
     null,
   ) : null
 
   frontend_endpoint = var.deploy_application_services ? try(
     one([
-      for config in aws_ecs_express_gateway_service.frontend[0].active_configurations :
-      config.ingress_paths[0].endpoint
-      if length(config.ingress_paths) > 0
+      for path in aws_ecs_express_gateway_service.frontend[0].ingress_paths :
+      path.endpoint
     ]),
     null,
   ) : null

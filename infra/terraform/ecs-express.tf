@@ -14,7 +14,8 @@ resource "aws_ecs_express_gateway_service" "user_service" {
     container_port = 4200
 
     aws_logs_configuration {
-      log_group = aws_cloudwatch_log_group.user_service.name
+      log_group         = aws_cloudwatch_log_group.user_service.name
+      log_stream_prefix = "user-service"
     }
 
     environment {
@@ -74,8 +75,10 @@ resource "aws_ecs_express_gateway_service" "user_service" {
   }
 
   scaling_target {
-    min_task_count = var.ecs_min_tasks
-    max_task_count = var.ecs_max_tasks
+    min_task_count            = var.ecs_min_tasks
+    max_task_count            = var.ecs_max_tasks
+    auto_scaling_metric       = "AVERAGE_CPU"
+    auto_scaling_target_value = 60
   }
 
   wait_for_steady_state = true
@@ -102,7 +105,8 @@ resource "aws_ecs_express_gateway_service" "vehicle_service" {
     container_port = 4203
 
     aws_logs_configuration {
-      log_group = aws_cloudwatch_log_group.vehicle_service.name
+      log_group         = aws_cloudwatch_log_group.vehicle_service.name
+      log_stream_prefix = "vehicle-service"
     }
 
     environment {
@@ -162,8 +166,10 @@ resource "aws_ecs_express_gateway_service" "vehicle_service" {
   }
 
   scaling_target {
-    min_task_count = var.ecs_min_tasks
-    max_task_count = var.ecs_max_tasks
+    min_task_count            = var.ecs_min_tasks
+    max_task_count            = var.ecs_max_tasks
+    auto_scaling_metric       = "AVERAGE_CPU"
+    auto_scaling_target_value = 60
   }
 
   wait_for_steady_state = true
@@ -182,14 +188,15 @@ resource "aws_ecs_express_gateway_service" "frontend" {
   infrastructure_role_arn = aws_iam_role.ecs_infrastructure.arn
   cpu                     = var.ecs_cpu
   memory                  = var.ecs_memory
-  health_check_path       = "/"
+  health_check_path       = "/api/health/live"
 
   primary_container {
     image          = "${aws_ecr_repository.frontend.repository_url}:${var.image_tag}"
     container_port = 3000
 
     aws_logs_configuration {
-      log_group = aws_cloudwatch_log_group.frontend.name
+      log_group         = aws_cloudwatch_log_group.frontend.name
+      log_stream_prefix = "frontend"
     }
 
     environment {
@@ -214,13 +221,15 @@ resource "aws_ecs_express_gateway_service" "frontend" {
   }
 
   network_configuration {
-    subnets         = aws_subnet.private[*].id
+    subnets         = aws_subnet.public[*].id
     security_groups = [aws_security_group.ecs_tasks.id]
   }
 
   scaling_target {
-    min_task_count = var.ecs_min_tasks
-    max_task_count = var.ecs_max_tasks
+    min_task_count            = var.ecs_min_tasks
+    max_task_count            = var.ecs_max_tasks
+    auto_scaling_metric       = "AVERAGE_CPU"
+    auto_scaling_target_value = 60
   }
 
   wait_for_steady_state = true

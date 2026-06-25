@@ -10,6 +10,7 @@ SERVICE="${1:-all}"
 run_task() {
   local task_definition="$1"
   local label="$2"
+  local stream_prefix="$3"
 
   echo "Running ${label} migration task (${task_definition})"
 
@@ -39,7 +40,34 @@ run_task() {
   )"
 
   if [[ "${EXIT_CODE}" != "0" ]]; then
+    local task_id stopped_reason container_reason
+    task_id="${TASK_ARN##*/}"
+    stopped_reason="$(
+      aws ecs describe-tasks \
+        --cluster "${CLUSTER}" \
+        --tasks "${TASK_ARN}" \
+        --query 'tasks[0].stoppedReason' \
+        --output text \
+        --region "${AWS_REGION}"
+    )"
+    container_reason="$(
+      aws ecs describe-tasks \
+        --cluster "${CLUSTER}" \
+        --tasks "${TASK_ARN}" \
+        --query 'tasks[0].containers[0].reason' \
+        --output text \
+        --region "${AWS_REGION}"
+    )"
+
     echo "${label} migration failed with exit code ${EXIT_CODE}" >&2
+    echo "Stopped reason: ${stopped_reason}" >&2
+    echo "Container reason: ${container_reason}" >&2
+    echo "Recent CloudWatch logs:" >&2
+    MSYS_NO_PATHCONV=1 aws logs tail "${MIGRATIONS_LOG_GROUP}" \
+      --since 15m \
+      --region "${AWS_REGION}" \
+      --log-stream-name-prefix "${stream_prefix}/migrate/${task_id}" \
+      2>&1 || true
     exit 1
   fi
 
@@ -50,22 +78,23 @@ cd "${TERRAFORM_DIR}"
 
 CLUSTER="$(terraform output -raw ecs_cluster_ops)"
 SECURITY_GROUP="$(terraform output -raw ecs_tasks_security_group_id)"
-SUBNETS="$(terraform output -json private_subnet_ids | python3 -c "import json,sys; print(','.join(json.load(sys.stdin)))")"
+SUBNETS="$(terraform output -json private_subnet_ids | node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(0, 'utf8')); console.log(value.join(','));")"
 
 TASKS="$(terraform output -json migration_task_definitions)"
-USER_TASK="$(python3 -c "import json,sys; print(json.load(sys.stdin)['user_service'])" <<<"${TASKS}")"
-VEHICLE_TASK="$(python3 -c "import json,sys; print(json.load(sys.stdin)['vehicle_service'])" <<<"${TASKS}")"
+USER_TASK="$(node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(0, 'utf8')); console.log(value.user_service);" <<<"${TASKS}")"
+VEHICLE_TASK="$(node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(0, 'utf8')); console.log(value.vehicle_service);" <<<"${TASKS}")"
+MIGRATIONS_LOG_GROUP="/ecs/vsp-prod/migrations"
 
 case "${SERVICE}" in
   user)
-    run_task "${USER_TASK}" "user-service"
+    run_task "${USER_TASK}" "user-service" "user-service"
     ;;
   vehicle)
-    run_task "${VEHICLE_TASK}" "vehicle-service"
+    run_task "${VEHICLE_TASK}" "vehicle-service" "vehicle-service"
     ;;
   all)
-    run_task "${USER_TASK}" "user-service"
-    run_task "${VEHICLE_TASK}" "vehicle-service"
+    run_task "${USER_TASK}" "user-service" "user-service"
+    run_task "${VEHICLE_TASK}" "vehicle-service" "vehicle-service"
     ;;
   *)
     echo "Usage: $0 [all|user|vehicle]" >&2

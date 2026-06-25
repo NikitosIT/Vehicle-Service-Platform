@@ -5,6 +5,7 @@ resource "aws_mq_broker" "rabbitmq" {
   engine_version     = "3.13"
   host_instance_type = var.mq_instance_type
   deployment_mode    = "SINGLE_INSTANCE"
+  auto_minor_version_upgrade = true
 
   publicly_accessible = false
   subnet_ids          = [aws_subnet.private[0].id]

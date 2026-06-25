@@ -117,6 +117,55 @@ Run migrations when Prisma schema changed:
 ./infra/scripts/run-migrations.sh all
 ```
 
+## GitHub CD
+
+The repository includes `.github/workflows/deploy-images.yml` for deployment after pushes to `main`.
+
+The workflow:
+
+1. Detects changed services by path.
+2. Builds and pushes Docker images only for changed services.
+3. Applies Terraform with per-service image tags.
+4. Runs Prisma migrations only when Prisma files changed.
+
+Before enabling it, move Terraform state to a remote backend. Use `infra/terraform/backend.tf.example` as a template, create an S3 bucket and DynamoDB lock table, then migrate the existing local state with `terraform init -migrate-state`.
+
+You can create the backend resources with the dedicated bootstrap stack in `infra/bootstrap`:
+
+```bash
+cd infra/bootstrap
+cp terraform.tfvars.example terraform.tfvars
+terraform init
+terraform apply
+```
+
+Then use the `backend_tf_snippet` output to create `infra/terraform/backend.tf`, and migrate the main state:
+
+```bash
+cd ../terraform
+terraform init -migrate-state
+```
+
+You can create the GitHub Actions IAM role and OIDC trust separately with the dedicated stack in `infra/bootstrap/github-oidc`:
+
+```bash
+cd ../bootstrap/github-oidc
+cp terraform.tfvars.example terraform.tfvars
+terraform init
+terraform apply
+```
+
+Then set the output `github_actions_role_arn` as the GitHub repository variable `AWS_ROLE_TO_ASSUME`.
+
+Required GitHub repository variables:
+
+| Variable | Description |
+|----------|-------------|
+| `AWS_REGION` | AWS region, for example `eu-central-1` |
+| `AWS_ROLE_TO_ASSUME` | IAM role ARN trusted by GitHub Actions OIDC |
+
+The deployment workflow reads ECR repository URLs and the previously deployed image tags from Terraform outputs, so unchanged services keep their current image tags.
+
 ## Terraform outputs
 
 | Output | Description |
@@ -125,6 +174,7 @@ Run migrations when Prisma schema changed:
 | `user_service_url` | Internal/user-service Express URL |
 | `vehicle_service_url` | Internal/vehicle-service Express URL |
 | `ecr_repositories` | ECR URLs for CI/CD |
+| `image_tags` | Effective image tags currently deployed per service |
 | `ecs_cluster_ops` | Cluster used for migration tasks |
 
 ## Cost notes

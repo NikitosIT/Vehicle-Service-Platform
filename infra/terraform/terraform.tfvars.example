@@ -3,6 +3,11 @@ project_name = "vsp"
 environment  = "prod"
 image_tag    = "latest"
 
+# Optional per-service image tags. If omitted, each service uses image_tag.
+# frontend_image_tag        = "latest"
+# user_service_image_tag    = "latest"
+# vehicle_service_image_tag = "latest"
+
 db_backup_retention_days = 1
 db_deletion_protection   = false
 

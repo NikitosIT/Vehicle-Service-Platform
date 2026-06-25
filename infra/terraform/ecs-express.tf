@@ -10,7 +10,7 @@ resource "aws_ecs_express_gateway_service" "user_service" {
   health_check_path       = "/health/live"
 
   primary_container {
-    image          = "${aws_ecr_repository.user_service.repository_url}:${var.image_tag}"
+    image          = "${aws_ecr_repository.user_service.repository_url}:${local.user_service_image_tag}"
     container_port = 4200
 
     aws_logs_configuration {
@@ -101,7 +101,7 @@ resource "aws_ecs_express_gateway_service" "vehicle_service" {
   health_check_path       = "/health/live"
 
   primary_container {
-    image          = "${aws_ecr_repository.vehicle_service.repository_url}:${var.image_tag}"
+    image          = "${aws_ecr_repository.vehicle_service.repository_url}:${local.vehicle_service_image_tag}"
     container_port = 4203
 
     aws_logs_configuration {
@@ -191,7 +191,7 @@ resource "aws_ecs_express_gateway_service" "frontend" {
   health_check_path       = "/api/health/live"
 
   primary_container {
-    image          = "${aws_ecr_repository.frontend.repository_url}:${var.image_tag}"
+    image          = "${aws_ecr_repository.frontend.repository_url}:${local.frontend_image_tag}"
     container_port = 3000
 
     aws_logs_configuration {

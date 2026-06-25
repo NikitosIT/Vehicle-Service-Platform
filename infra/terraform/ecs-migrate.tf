@@ -14,7 +14,7 @@ resource "aws_ecs_task_definition" "user_migrate" {
   container_definitions = jsonencode([
     {
       name      = "migrate"
-      image     = "${aws_ecr_repository.user_service.repository_url}:${var.image_tag}"
+      image     = "${aws_ecr_repository.user_service.repository_url}:${local.user_service_image_tag}"
       essential = true
       command   = ["/app/node_modules/.bin/prisma", "migrate", "deploy"]
       environment = [
@@ -53,7 +53,7 @@ resource "aws_ecs_task_definition" "vehicle_migrate" {
   container_definitions = jsonencode([
     {
       name      = "migrate"
-      image     = "${aws_ecr_repository.vehicle_service.repository_url}:${var.image_tag}"
+      image     = "${aws_ecr_repository.vehicle_service.repository_url}:${local.vehicle_service_image_tag}"
       essential = true
       command   = ["/app/node_modules/.bin/prisma", "migrate", "deploy"]
       environment = [

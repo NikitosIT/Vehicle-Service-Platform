@@ -17,9 +17,27 @@ variable "environment" {
 }
 
 variable "image_tag" {
-  description = "Docker image tag pushed to ECR for all application services."
+  description = "Fallback Docker image tag used when a service-specific image tag is not set."
   type        = string
   default     = "latest"
+}
+
+variable "frontend_image_tag" {
+  description = "Docker image tag pushed to ECR for the frontend service."
+  type        = string
+  default     = null
+}
+
+variable "user_service_image_tag" {
+  description = "Docker image tag pushed to ECR for the user-service."
+  type        = string
+  default     = null
+}
+
+variable "vehicle_service_image_tag" {
+  description = "Docker image tag pushed to ECR for the vehicle-service."
+  type        = string
+  default     = null
 }
 
 variable "frontend_url" {

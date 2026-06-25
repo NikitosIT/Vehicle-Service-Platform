@@ -1,0 +1,14 @@
+aws_region             = "eu-central-1"
+project_name           = "vsp"
+environment            = "prod"
+github_owner           = "Nikitos-org"
+github_repository      = "Vehicle-Service-Platform"
+github_ref             = "refs/heads/main"
+role_name              = "github-actions-infra-deploy-role"
+terraform_state_bucket = "replace-with-your-terraform-state-bucket"
+terraform_state_key    = "vsp/prod/terraform.tfstate"
+terraform_lock_table   = "replace-with-your-terraform-lock-table"
+
+# Set these only if the GitHub OIDC provider already exists in AWS.
+# create_github_oidc_provider = false
+# github_oidc_provider_arn    = "arn:aws:iam::<account-id>:oidc-provider/token.actions.githubusercontent.com"

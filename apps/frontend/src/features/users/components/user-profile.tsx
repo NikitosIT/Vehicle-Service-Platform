@@ -2,15 +2,14 @@ import Link from 'next/link';
 
 import {
   PaginationNav,
-  PaginationSummary,
   type PaginationSearchParams,
+  PaginationSummary,
 } from '@/features/pagination';
-import type { VehicleListItem } from '@/features/vehicles/api/vehicles.server';
 import { CreateVehicleForm } from '@/features/vehicles/components/create-vehicle-form';
 import { VehicleList } from '@/features/vehicles/components/vehicle-list';
 import type { VehiclesPageData } from '@/features/vehicles/model/types/vehicles.types';
 
-import type { UserListItem } from '../api/users.server';
+import type { UserListItem } from '../model/types/users.types';
 
 import { DeleteUserButton } from './delete-user-button';
 import { UpdateUserForm } from './update-user-form';
@@ -105,7 +104,10 @@ export function UserProfile({
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50/85 px-4 py-3 text-sm text-slate-600">
-              <PaginationSummary itemLabel="vehicles" meta={vehiclesPage.meta} />
+              <PaginationSummary
+                itemLabel="vehicles"
+                meta={vehiclesPage.meta}
+              />
             </div>
           </div>
 

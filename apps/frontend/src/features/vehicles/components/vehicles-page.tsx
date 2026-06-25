@@ -1,7 +1,7 @@
 import {
   PaginationNav,
-  PaginationSummary,
   type PaginationSearchParams,
+  PaginationSummary,
 } from '@/features/pagination';
 
 import type { VehiclesPageData } from '../model/types/vehicles.types';
@@ -13,7 +13,10 @@ interface VehiclesPageProps {
   vehiclesPage: VehiclesPageData;
 }
 
-export function VehiclesPage({ searchParams, vehiclesPage }: VehiclesPageProps) {
+export function VehiclesPage({
+  searchParams,
+  vehiclesPage,
+}: VehiclesPageProps) {
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#e2e8f0_100%)] px-6 py-16">
       <div className="mx-auto max-w-5xl">

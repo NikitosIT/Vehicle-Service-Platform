@@ -53,7 +53,13 @@ export function VehicleCard({
             >
               {vehicle.make} {vehicle.model}
             </h3>
-            <p className={compact ? 'mt-1.5 text-sm text-slate-600' : 'mt-2 text-sm text-slate-600'}>
+            <p
+              className={
+                compact
+                  ? 'mt-1.5 text-sm text-slate-600'
+                  : 'mt-2 text-sm text-slate-600'
+              }
+            >
               {vehicle.year
                 ? `Production year: ${vehicle.year}`
                 : 'Year not specified'}
@@ -93,10 +99,22 @@ export function VehicleCard({
             }
           >
             <div>
-              <p className={compact ? 'text-sm font-semibold text-slate-900' : 'text-sm font-semibold text-slate-900'}>
+              <p
+                className={
+                  compact
+                    ? 'text-sm font-semibold text-slate-900'
+                    : 'text-sm font-semibold text-slate-900'
+                }
+              >
                 Manage vehicle record
               </p>
-              <p className={compact ? 'mt-0.5 text-sm text-slate-600' : 'mt-1 text-sm text-slate-600'}>
+              <p
+                className={
+                  compact
+                    ? 'mt-0.5 text-sm text-slate-600'
+                    : 'mt-1 text-sm text-slate-600'
+                }
+              >
                 Update the details or remove the record.
               </p>
             </div>

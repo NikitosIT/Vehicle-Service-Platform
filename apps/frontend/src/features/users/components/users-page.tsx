@@ -1,7 +1,7 @@
 import {
   PaginationNav,
-  PaginationSummary,
   type PaginationSearchParams,
+  PaginationSummary,
 } from '@/features/pagination';
 
 import type { UsersPageData } from '../model/types/users.types';

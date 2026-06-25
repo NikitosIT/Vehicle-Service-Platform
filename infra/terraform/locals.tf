@@ -7,6 +7,10 @@ locals {
     ManagedBy   = "terraform"
   }
 
+  frontend_image_tag        = coalesce(var.frontend_image_tag, var.image_tag)
+  user_service_image_tag    = coalesce(var.user_service_image_tag, var.image_tag)
+  vehicle_service_image_tag = coalesce(var.vehicle_service_image_tag, var.image_tag)
+
   azs = slice(data.aws_availability_zones.available.names, 0, 2)
 
   public_subnet_cidrs = [
@@ -24,7 +28,7 @@ locals {
     cidrsubnet(var.vpc_cidr, 4, 13),
   ]
 
-  user_service_database_url = "postgresql://${aws_db_instance.user_service.username}:${random_password.db_master.result}@${aws_db_instance.user_service.address}:${aws_db_instance.user_service.port}/user_service?sslmode=require"
+  user_service_database_url    = "postgresql://${aws_db_instance.user_service.username}:${random_password.db_master.result}@${aws_db_instance.user_service.address}:${aws_db_instance.user_service.port}/user_service?sslmode=require"
   vehicle_service_database_url = "postgresql://${aws_db_instance.vehicle_service.username}:${random_password.db_master.result}@${aws_db_instance.vehicle_service.address}:${aws_db_instance.vehicle_service.port}/vehicle_service?sslmode=require"
 
   session_secret = random_password.session_secret.result
@@ -57,6 +61,6 @@ locals {
 
   redis_url = "rediss://:${random_password.redis_auth.result}@${aws_elasticache_replication_group.redis.primary_endpoint_address}:${aws_elasticache_replication_group.redis.port}"
 
-  mq_host = trimprefix(aws_mq_broker.rabbitmq.instances[0].endpoints[0], "amqps://")
+  mq_host      = trimprefix(aws_mq_broker.rabbitmq.instances[0].endpoints[0], "amqps://")
   rabbitmq_url = "amqps://vsp:${random_password.mq.result}@${local.mq_host}"
 }

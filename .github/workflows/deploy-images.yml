@@ -1,24 +1,32 @@
-name: Deploy Images to ECR
+name: Deploy to AWS
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
 
 jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
       user_service: ${{ steps.filter.outputs.user_service }}
       vehicle_service: ${{ steps.filter.outputs.vehicle_service }}
+      user_migrations: ${{ steps.filter.outputs.user_migrations }}
+      vehicle_migrations: ${{ steps.filter.outputs.vehicle_migrations }}
+      infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +34,14 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
+            frontend:
+              - 'apps/frontend/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - '.dockerignore'
             user_service:
               - 'apps/user-service/**'
               - 'packages/**'
@@ -42,12 +58,22 @@ jobs:
               - 'tsconfig.base.json'
               - 'turbo.json'
               - '.dockerignore'
+            user_migrations:
+              - 'apps/user-service/prisma/**'
+            vehicle_migrations:
+              - 'apps/vehicle-service/prisma/**'
+            infra:
+              - 'infra/terraform/**'
 
-  push-user-service:
-    needs: changes
-    if: needs.changes.outputs.user_service == 'true'
+  deploy:
     runs-on: ubuntu-latest
-
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.frontend == 'true' ||
+      needs.changes.outputs.user_service == 'true' ||
+      needs.changes.outputs.vehicle_service == 'true' ||
+      needs.changes.outputs.infra == 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -58,43 +84,108 @@ jobs:
 
       - uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push user-service image
-        run: |
-          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ vars.ECR_USER_SERVICE_REPOSITORY }}"
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
+      - name: Terraform init
+        working-directory: infra/terraform
+        run: terraform init -upgrade
+
+      - name: Verify Terraform state is available
+        working-directory: infra/terraform
+        run: |
+          if ! terraform state list >/dev/null 2>&1; then
+            echo "::error::Terraform state is not available. Configure a remote backend before enabling GitHub CD."
+            exit 1
+          fi
+
+      - name: Resolve image repositories and tags
+        working-directory: infra/terraform
+        run: |
+          set -euo pipefail
+
+          REPOS_JSON="$(terraform output -json ecr_repositories)"
+          TAGS_JSON="$(terraform output -json image_tags 2>/dev/null || echo '{}')"
+
+          FRONTEND_REPO="$(echo "${REPOS_JSON}" | jq -r '.frontend')"
+          USER_SERVICE_REPO="$(echo "${REPOS_JSON}" | jq -r '.user_service')"
+          VEHICLE_SERVICE_REPO="$(echo "${REPOS_JSON}" | jq -r '.vehicle_service')"
+
+          FRONTEND_TAG="$(echo "${TAGS_JSON}" | jq -r '.frontend // "latest"')"
+          USER_SERVICE_TAG="$(echo "${TAGS_JSON}" | jq -r '.user_service // "latest"')"
+          VEHICLE_SERVICE_TAG="$(echo "${TAGS_JSON}" | jq -r '.vehicle_service // "latest"')"
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ needs.changes.outputs.frontend }}" == "true" ]]; then
+            FRONTEND_TAG="${GITHUB_SHA}"
+          fi
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ needs.changes.outputs.user_service }}" == "true" ]]; then
+            USER_SERVICE_TAG="${GITHUB_SHA}"
+          fi
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ needs.changes.outputs.vehicle_service }}" == "true" ]]; then
+            VEHICLE_SERVICE_TAG="${GITHUB_SHA}"
+          fi
+
+          {
+            echo "FRONTEND_REPO=${FRONTEND_REPO}"
+            echo "USER_SERVICE_REPO=${USER_SERVICE_REPO}"
+            echo "VEHICLE_SERVICE_REPO=${VEHICLE_SERVICE_REPO}"
+            echo "FRONTEND_TAG=${FRONTEND_TAG}"
+            echo "USER_SERVICE_TAG=${USER_SERVICE_TAG}"
+            echo "VEHICLE_SERVICE_TAG=${VEHICLE_SERVICE_TAG}"
+          } >> "${GITHUB_ENV}"
+
+      - name: Build and push frontend
+        if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.frontend == 'true'
+        run: |
+          docker build \
+            -f apps/frontend/Dockerfile \
+            -t "${FRONTEND_REPO}:latest" \
+            -t "${FRONTEND_REPO}:${FRONTEND_TAG}" \
+            .
+
+          docker push "${FRONTEND_REPO}:latest"
+          docker push "${FRONTEND_REPO}:${FRONTEND_TAG}"
+
+      - name: Build and push user-service
+        if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.user_service == 'true'
+        run: |
           docker build \
             -f apps/user-service/Dockerfile \
-            -t "${IMAGE_URI}:latest" \
-            -t "${IMAGE_URI}:${{ github.sha }}" \
+            -t "${USER_SERVICE_REPO}:latest" \
+            -t "${USER_SERVICE_REPO}:${USER_SERVICE_TAG}" \
             .
 
-          docker push "${IMAGE_URI}:latest"
-          docker push "${IMAGE_URI}:${{ github.sha }}"
+          docker push "${USER_SERVICE_REPO}:latest"
+          docker push "${USER_SERVICE_REPO}:${USER_SERVICE_TAG}"
 
-  push-vehicle-service:
-    needs: changes
-    if: needs.changes.outputs.vehicle_service == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push vehicle-service image
+      - name: Build and push vehicle-service
+        if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.vehicle_service == 'true'
         run: |
-          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ vars.ECR_VEHICLE_SERVICE_REPOSITORY }}"
-
           docker build \
             -f apps/vehicle-service/Dockerfile \
-            -t "${IMAGE_URI}:latest" \
-            -t "${IMAGE_URI}:${{ github.sha }}" \
+            -t "${VEHICLE_SERVICE_REPO}:latest" \
+            -t "${VEHICLE_SERVICE_REPO}:${VEHICLE_SERVICE_TAG}" \
             .
 
-          docker push "${IMAGE_URI}:latest"
-          docker push "${IMAGE_URI}:${{ github.sha }}"
+          docker push "${VEHICLE_SERVICE_REPO}:latest"
+          docker push "${VEHICLE_SERVICE_REPO}:${VEHICLE_SERVICE_TAG}"
+
+      - name: Deploy changed services
+        working-directory: infra/terraform
+        run: |
+          terraform apply -auto-approve \
+            -var="deploy_application_services=true" \
+            -var="frontend_image_tag=${FRONTEND_TAG}" \
+            -var="user_service_image_tag=${USER_SERVICE_TAG}" \
+            -var="vehicle_service_image_tag=${VEHICLE_SERVICE_TAG}"
+
+      - name: Run user-service migrations
+        if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.user_migrations == 'true'
+        run: ./infra/scripts/run-migrations.sh user
+
+      - name: Run vehicle-service migrations
+        if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.vehicle_migrations == 'true'
+        run: ./infra/scripts/run-migrations.sh vehicle

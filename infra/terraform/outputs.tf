@@ -12,6 +12,15 @@ output "ecr_repositories" {
   }
 }
 
+output "image_tags" {
+  description = "Effective Docker image tags currently configured for application services."
+  value = {
+    frontend        = local.frontend_image_tag
+    user_service    = local.user_service_image_tag
+    vehicle_service = local.vehicle_service_image_tag
+  }
+}
+
 output "frontend_url" {
   description = "Public HTTPS URL for the frontend Express service."
   value       = local.frontend_endpoint

@@ -33,7 +33,7 @@ export function AuthPanel() {
   });
 
   return (
-    <section className="grid gap-6 rounded-[1.75rem] border border-white/80 bg-white/92 p-5 shadow-[0_28px_80px_rgba(15,23,42,0.12)] backdrop-blur-sm sm:min-h-[38rem] sm:p-7">
+    <section className="grid gap-6 rounded-[1.75rem] border border-white/80 bg-white/92 p-5 shadow-[0_28px_80px_rgba(15,23,42,0.12)] backdrop-blur-sm sm:min-h-152 sm:p-7">
       <div className="relative grid h-12 grid-cols-2 rounded-[1rem] border border-slate-200/90 bg-slate-100/75 p-0.5">
         {AUTH_TABS.map((tab) => {
           const isActive = tab.mode === mode;
@@ -60,7 +60,7 @@ export function AuthPanel() {
         })}
       </div>
 
-      <div className="h-[30rem]">
+      <div className="h-120">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={mode}

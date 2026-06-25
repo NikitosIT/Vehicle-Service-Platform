@@ -19,6 +19,7 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   app.enableShutdownHooks();
+  app.set('trust proxy', 1);
 
   app.use(
     helmet({

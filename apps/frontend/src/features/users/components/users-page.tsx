@@ -1,13 +1,20 @@
-import type { UserListItem } from '../model/types/users.types';
+import {
+  PaginationNav,
+  type PaginationSearchParams,
+  PaginationSummary,
+} from '@/features/pagination';
+
+import type { UsersPageData } from '../model/types/users.types';
 
 import { CreateUserForm } from './create-user-form';
 import { UsersList } from './users-list';
 
 interface UsersPageProps {
-  users: UserListItem[];
+  searchParams?: PaginationSearchParams;
+  usersPage: UsersPageData;
 }
 
-export function UsersPage({ users }: UsersPageProps) {
+export function UsersPage({ searchParams, usersPage }: UsersPageProps) {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f8fafc_0%,#e2e8f0_45%,#cbd5e1_100%)] px-6 py-16">
       <div className="mx-auto max-w-5xl">
@@ -25,7 +32,7 @@ export function UsersPage({ users }: UsersPageProps) {
           </div>
 
           <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
-            {users.length} {users.length === 1 ? 'record' : 'records'}
+            <PaginationSummary itemLabel="records" meta={usersPage.meta} />
           </div>
         </div>
 
@@ -33,7 +40,14 @@ export function UsersPage({ users }: UsersPageProps) {
           <CreateUserForm />
         </div>
 
-        <UsersList users={users} />
+        <UsersList users={usersPage.items} />
+
+        <PaginationNav
+          className="mt-8"
+          meta={usersPage.meta}
+          pathname="/users"
+          searchParams={searchParams}
+        />
       </div>
     </main>
   );

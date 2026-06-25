@@ -17,11 +17,20 @@ async function getUserOrNotFound(id: string) {
   }
 }
 
-export async function getUserDetailsPageData(id: string) {
-  const [user, vehicles] = await Promise.all([
+export async function getUserDetailsPageData(
+  id: string,
+  pagination?: {
+    page: number;
+    pageSize: number;
+  },
+) {
+  const [user, vehiclesPage] = await Promise.all([
     getUserOrNotFound(id),
-    getVehiclesByUserId(id),
+    getVehiclesByUserId(id, pagination),
   ]);
 
-  return { user, vehicles };
+  return {
+    user,
+    vehiclesPage,
+  };
 }

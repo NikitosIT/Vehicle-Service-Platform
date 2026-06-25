@@ -6,12 +6,13 @@ import 'server-only';
 
 import {
   userListItemSchema,
-  usersListSchema,
+  usersPageSchema,
 } from '../model/schemas/users.schemas';
 import type {
   CreateUserInput,
   UpdateUserInput,
   UserListItem,
+  UsersPageData,
 } from '../model/types/users.types';
 
 async function getSessionHeaders(additionalHeaders?: HeadersInit) {
@@ -23,8 +24,20 @@ async function getSessionHeaders(additionalHeaders?: HeadersInit) {
   };
 }
 
-export async function getUsers() {
-  return fetchJson(makeUsersUrl(), usersListSchema, {
+interface GetUsersParams {
+  page: number;
+  pageSize: number;
+}
+
+export async function getUsers({
+  page,
+  pageSize,
+}: GetUsersParams): Promise<UsersPageData> {
+  const url = makeUsersUrl();
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('pageSize', String(pageSize));
+
+  return fetchJson(url, usersPageSchema, {
     headers: await getSessionHeaders(),
     next: {
       revalidate: 60,

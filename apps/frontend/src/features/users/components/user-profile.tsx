@@ -1,20 +1,32 @@
 import Link from 'next/link';
 
-import type { VehicleListItem } from '@/features/vehicles/api/vehicles.server';
+import {
+  PaginationNav,
+  type PaginationSearchParams,
+  PaginationSummary,
+} from '@/features/pagination';
 import { CreateVehicleForm } from '@/features/vehicles/components/create-vehicle-form';
 import { VehicleList } from '@/features/vehicles/components/vehicle-list';
+import type { VehiclesPageData } from '@/features/vehicles/model/types/vehicles.types';
 
-import type { UserListItem } from '../api/users.server';
+import type { UserListItem } from '../model/types/users.types';
 
 import { DeleteUserButton } from './delete-user-button';
 import { UpdateUserForm } from './update-user-form';
 
 interface UserProfileProps {
+  searchParams?: PaginationSearchParams;
   user: UserListItem;
-  vehicles: VehicleListItem[];
+  vehiclesPage: VehiclesPageData;
 }
 
-export function UserProfile({ user, vehicles }: UserProfileProps) {
+export function UserProfile({
+  searchParams,
+  user,
+  vehiclesPage,
+}: UserProfileProps) {
+  const vehicles = vehiclesPage.items;
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f8fafc_0%,#e2e8f0_45%,#cbd5e1_100%)] px-6 py-16">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -92,11 +104,21 @@ export function UserProfile({ user, vehicles }: UserProfileProps) {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50/85 px-4 py-3 text-sm text-slate-600">
-              {vehicles.length} {vehicles.length === 1 ? 'vehicle' : 'vehicles'}
+              <PaginationSummary
+                itemLabel="vehicles"
+                meta={vehiclesPage.meta}
+              />
             </div>
           </div>
 
-          <VehicleList vehicles={vehicles} />
+          <VehicleList compact hideOwnerMeta vehicles={vehicles} />
+
+          <PaginationNav
+            className="mt-6"
+            meta={vehiclesPage.meta}
+            pathname={`/users/${user.id}`}
+            searchParams={searchParams}
+          />
         </section>
 
         <DeleteUserButton userId={user.id} />

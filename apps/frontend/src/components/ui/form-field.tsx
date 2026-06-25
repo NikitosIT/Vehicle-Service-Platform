@@ -1,3 +1,5 @@
+import { useId, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -14,10 +16,18 @@ export function FormField({
   label,
   leading,
   className = '',
+  type,
   ...props
 }: FormFieldProps) {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const isPasswordField = type === 'password';
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const inputType =
+    isPasswordField && isPasswordVisible ? 'text' : (type ?? 'text');
+
   return (
-    <label className="grid gap-2" htmlFor={id}>
+    <label className="grid gap-2" htmlFor={inputId}>
       <span className="text-sm font-medium text-slate-700">{label}</span>
 
       <div
@@ -34,8 +44,24 @@ export function FormField({
         <input
           {...props}
           className={`w-full border-0 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400 ${className}`.trim()}
-          id={id}
+          id={inputId}
+          type={inputType}
         />
+
+        {isPasswordField ? (
+          <button
+            aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+            className="shrink-0 rounded-full p-1 text-slate-400 transition hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+            onClick={() => setIsPasswordVisible((current) => !current)}
+            type="button"
+          >
+            {isPasswordVisible ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
+          </button>
+        ) : null}
       </div>
 
       {error ? (

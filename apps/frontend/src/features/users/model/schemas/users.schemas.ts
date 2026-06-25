@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { paginationMetaSchema } from '@/features/pagination';
+
 export const userListItemSchema = z.object({
   id: z.string(),
   email: z.email(),
@@ -7,4 +9,7 @@ export const userListItemSchema = z.object({
   avatar: z.url().nullable(),
 });
 
-export const usersListSchema = z.array(userListItemSchema);
+export const usersPageSchema = z.object({
+  items: z.array(userListItemSchema),
+  meta: paginationMetaSchema,
+});

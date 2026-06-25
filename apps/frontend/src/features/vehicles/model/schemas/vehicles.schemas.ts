@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { paginationMetaSchema } from '@/features/pagination';
+
 export const vehicleListItemSchema = z.object({
   id: z.number(),
   isDraft: z.boolean(),
@@ -9,4 +11,7 @@ export const vehicleListItemSchema = z.object({
   year: z.number().nullable(),
 });
 
-export const vehiclesListSchema = z.array(vehicleListItemSchema);
+export const vehiclesPageSchema = z.object({
+  items: z.array(vehicleListItemSchema),
+  meta: paginationMetaSchema,
+});

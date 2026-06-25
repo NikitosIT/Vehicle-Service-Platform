@@ -1,4 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  PaginateQueryDto,
+  PaginateService,
+} from '@vsp/backend-shared/paginate';
 
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
 import { CreateUserDto, UpdateUserDto } from './users.dto.js';
@@ -9,6 +13,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usersEventsPublisher: UsersEventsPublisher,
+    private readonly paginateService: PaginateService,
   ) {}
 
   async create(dto: CreateUserDto, accountId: string) {
@@ -23,14 +28,33 @@ export class UsersService {
     return user;
   }
 
-  findAll(accountId: string) {
-    return this.prisma.user.findMany({
-      where: {
-        createdByAccountId: accountId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+  async findAll(query: PaginateQueryDto, accountId: string) {
+    const pagination = this.paginateService.resolve({
+      page: query.page,
+      pageSize: query.pageSize,
+    });
+
+    const where = {
+      createdByAccountId: accountId,
+    };
+
+    const [users, totalItems] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      this.prisma.user.count({
+        where,
+      }),
+    ]);
+
+    return this.paginateService.buildPaginatedResult({
+      items: users,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      totalItems,
     });
   }
 

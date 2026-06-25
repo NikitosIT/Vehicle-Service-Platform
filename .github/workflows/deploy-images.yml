@@ -107,6 +107,7 @@ jobs:
 
           REPOS_JSON="$(terraform output -json ecr_repositories)"
           TAGS_JSON="$(terraform output -json image_tags 2>/dev/null || echo '{}')"
+          CURRENT_FRONTEND_URL="$(terraform output -raw frontend_url 2>/dev/null || true)"
 
           FRONTEND_REPO="$(echo "${REPOS_JSON}" | jq -r '.frontend')"
           USER_SERVICE_REPO="$(echo "${REPOS_JSON}" | jq -r '.user_service')"
@@ -135,6 +136,7 @@ jobs:
             echo "FRONTEND_TAG=${FRONTEND_TAG}"
             echo "USER_SERVICE_TAG=${USER_SERVICE_TAG}"
             echo "VEHICLE_SERVICE_TAG=${VEHICLE_SERVICE_TAG}"
+            echo "CURRENT_FRONTEND_URL=${CURRENT_FRONTEND_URL}"
           } >> "${GITHUB_ENV}"
 
       - name: Build and push frontend
@@ -176,11 +178,20 @@ jobs:
       - name: Deploy changed services
         working-directory: infra/terraform
         run: |
-          terraform apply -auto-approve \
-            -var="deploy_application_services=true" \
-            -var="frontend_image_tag=${FRONTEND_TAG}" \
-            -var="user_service_image_tag=${USER_SERVICE_TAG}" \
+          APPLY_ARGS=(
+            -auto-approve
+            -var-file=prod.auto.tfvars
+            -var="deploy_application_services=true"
+            -var="frontend_image_tag=${FRONTEND_TAG}"
+            -var="user_service_image_tag=${USER_SERVICE_TAG}"
             -var="vehicle_service_image_tag=${VEHICLE_SERVICE_TAG}"
+          )
+
+          if [[ -n "${CURRENT_FRONTEND_URL}" ]]; then
+            APPLY_ARGS+=(-var="frontend_url=${CURRENT_FRONTEND_URL}")
+          fi
+
+          terraform apply "${APPLY_ARGS[@]}"
 
       - name: Run user-service migrations
         if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.user_migrations == 'true'

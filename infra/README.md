@@ -89,6 +89,7 @@ Browser traffic only hits the frontend. Next.js forwards cookies to backend serv
 |------|---------|
 | `terraform.tfvars` | Region, sizing, image tag, frontend URL |
 | `terraform.tfvars.example` | Committed template |
+| `prod.auto.tfvars` | Committed production-safe overrides for CI/CD |
 
 Common variables:
 
